@@ -30,7 +30,7 @@ private:
 	USkeletalMeshComponent* FirstPersonMesh;
 
 	//An item that i can use right now
-	IUsableInterface* UsableActor;
+	IUsableInterface* UsableItem;
 
 	//Actual pointer to a weapon
 	AWeapon* Weapon;
@@ -73,6 +73,6 @@ public:
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
 
-	void Experiment();
+	void UseItem();
 	
 };

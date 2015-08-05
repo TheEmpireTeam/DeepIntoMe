@@ -17,14 +17,10 @@ AWeapon::AWeapon()
 	RootComponent = Mesh;
 	PickUpCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Pick Up Collision"));
 	PickUpCollision->AttachTo(Mesh);
-	Mesh->SetSimulatePhysics(true);
-	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
-	PickUpCollision->bGenerateOverlapEvents = true;
-	PickUpCollision->SetCollisionProfileName(TEXT("OverlapAll"));
 	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
 
-	bCanBePicked = false;
+	SetSimulatePhysics(true);
 }
 
 // Called when the game starts or when spawned
@@ -58,6 +54,30 @@ FString AWeapon::GetActionMessage()
 void AWeapon::Fire()
 {
 
+}
+
+void AWeapon::SetSimulatePhysics(bool bSimulate)
+{
+	bSimulatePhysics = bSimulate;
+	if (bSimulatePhysics)
+	{
+		Mesh->SetSimulatePhysics(true);
+		Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+		PickUpCollision->bGenerateOverlapEvents = true;
+		PickUpCollision->SetCollisionProfileName(TEXT("OverlapAll"));
+	}
+	else
+	{
+		Mesh->SetSimulatePhysics(false);
+		Mesh->SetCollisionProfileName(TEXT("NoCollision"));
+		PickUpCollision->bGenerateOverlapEvents = false;
+		PickUpCollision->SetCollisionProfileName(TEXT("NoCollison"));
+	}
+}
+
+bool AWeapon::GetSimulatePhysics()
+{
+	return bSimulatePhysics;
 }
 
 void AWeapon::OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)

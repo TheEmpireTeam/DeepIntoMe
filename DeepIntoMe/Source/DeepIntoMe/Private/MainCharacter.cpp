@@ -61,7 +61,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
-	InputComponent->BindAction("Experiment", IE_Pressed, this, &AMainCharacter::Experiment);
+	InputComponent->BindAction("Experiment", IE_Pressed, this, &AMainCharacter::UseItem);
 
 }
 
@@ -92,41 +92,34 @@ void AMainCharacter::MoveRight(float Value)
 	}
 }
 
-//!!!!!Experimental!!!!
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)
 	{
 		Weapon->DetachRootComponentFromParent(true);
-		Weapon->Mesh->SetSimulatePhysics(true);
-		Weapon->Mesh->SetCollisionProfileName(TEXT("BlockAll"));
-		Weapon->PickUpCollision->bGenerateOverlapEvents = true;
-		Weapon->PickUpCollision->SetCollisionProfileName(TEXT("OverlapAll"));
+		Weapon->SetSimulatePhysics(true);
 		Weapon = NULL;
 	}
 	Weapon = NewWeapon;
-	Weapon->Mesh->SetSimulatePhysics(false);
-	Weapon->Mesh->SetCollisionProfileName(TEXT("NoCollision"));
-	Weapon->PickUpCollision->bGenerateOverlapEvents = false;
-	Weapon->PickUpCollision->SetCollisionProfileName(TEXT("NoCollison"));
+	Weapon->SetSimulatePhysics(false);
 	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
 }
 
-void AMainCharacter::Experiment()
+void AMainCharacter::UseItem()
 {
-	if (UsableActor != NULL)
+	if (UsableItem != NULL)
 	{
-		UsableActor->OnUsed(this);
+		UsableItem->OnUsed(this);
 	}
 }
 
 void AMainCharacter::OnBeginOverlap(AActor* OtherActor)
 {
-	UsableActor = Cast<IUsableInterface>(OtherActor);
+	UsableItem = Cast<IUsableInterface>(OtherActor);
 
-	if (GEngine != NULL && UsableActor != NULL)
+	if (GEngine != NULL && UsableItem != NULL)
 	{
-		FString Message = UsableActor->GetActionMessage();
+		FString Message = UsableItem->GetActionMessage();
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, Message);
 	}
 }

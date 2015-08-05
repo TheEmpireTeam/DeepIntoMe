@@ -24,8 +24,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = ActionSettings)
 	FString ActionMessage;
 
-public:
-
 	//Weapon's collision for pick up
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PickUpCollision, meta = (AllowPrivateAccess = "true"))
 	USphereComponent* PickUpCollision;
@@ -34,7 +32,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Mesh;
 
-	bool bCanBePicked;
+	bool bSimulatePhysics;
+
+public:
 
 	// Sets default values for this actor's properties
 	AWeapon();
@@ -47,6 +47,10 @@ public:
 
 	void Fire();
 
+	void SetSimulatePhysics(bool bSimulate);
+
+	bool GetSimulatePhysics();
+
 	UFUNCTION()
 	void OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
@@ -57,13 +61,9 @@ public:
 
 	//IUsableInterface overrided methods
 	//-------------------------------------
-
-	//Event for object to do some shit
 	virtual void OnUsed(ACharacter* User) override;
 
-	//A message that will be sent to HUD for using some shit
 	virtual FString GetActionMessage() override;
-
 	//-------------------------------------
 	
 };

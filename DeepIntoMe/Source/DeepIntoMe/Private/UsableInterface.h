@@ -18,8 +18,10 @@ class IUsableInterface
 {
 	GENERATED_IINTERFACE_BODY()
 
+	//Event for object to do some shit
 	virtual void OnUsed(ACharacter* User) = 0;
 
+	//A message that will be sent to HUD for using some shit
 	virtual FString GetActionMessage() = 0;
 
 
