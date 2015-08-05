@@ -26,3 +26,12 @@
 *.exe
 *.out
 *.app
+
+
+*.sln
+*.sdf
+*.suo
+/DeepIntoMe/Binaries
+/DeepIntoMe/DerivedDataCache
+/DeepIntoMe/Intermediate
+/DeepIntoMe/Saved
