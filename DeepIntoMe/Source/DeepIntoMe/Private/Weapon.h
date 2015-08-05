@@ -21,12 +21,18 @@ class AWeapon : public AActor, public IUsableInterface
 
 private:
 
+	AMainCharacter* ParentCharacter;
+
 	//Message that will appear on the screen
 	UPROPERTY(EditAnywhere, Category = ActionSettings)
 	FString ActionMessage;
 
-	UPROPERTY(EditAnywhere, Category = Projectile)
+	UPROPERTY(EditAnywhere, Category = Firing)
 	TSubclassOf<AProjectile> ProjectileType;
+
+	//Name of a socket for Firing
+	UPROPERTY(EditAnywhere, Category = Firing)
+	FName FireSocketName;
 
 	//Weapon's collision for pick up
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PickUpCollision, meta = (AllowPrivateAccess = "true"))
@@ -37,6 +43,8 @@ private:
 	UStaticMeshComponent* Mesh;
 
 	bool bSimulatePhysics;
+
+	bool bFiring;
 
 public:
 
@@ -51,9 +59,15 @@ public:
 
 	void Fire();
 
-	void SetSimulatePhysics(bool bSimulate);
+	void SetSimulatePhysics(bool SimulatePhyics);
 
 	bool GetSimulatePhysics();
+
+	void SetParentCharacter(AMainCharacter* NewParentCharacter);
+
+	void SetFiringStatus(bool Firing);
+
+	bool GetFiringStatus();
 
 	UFUNCTION()
 	void OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);

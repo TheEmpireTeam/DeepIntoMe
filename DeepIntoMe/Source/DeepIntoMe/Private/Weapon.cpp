@@ -28,10 +28,18 @@ void AWeapon::BeginPlay()
 }
 
 // Called every frame
-void AWeapon::Tick( float DeltaTime )
+void AWeapon::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
+	Super::Tick(DeltaTime);
 
+	static float Time = 0;
+	Time += DeltaTime;
+
+	if (bFiring && Time > 3.0f)
+	{
+		Fire();
+		Time = 0;
+	}
 }
 
 void AWeapon::OnUsed(ACharacter* User)
@@ -52,11 +60,15 @@ void AWeapon::Fire()
 {
 	if (GEngine != NULL)
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString("Shoot"));
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.bNoCollisionFail = true;
+	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
+	GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, ParentCharacter->GetControlRotation(), SpawnParameters);
 }
 
-void AWeapon::SetSimulatePhysics(bool bSimulate)
+void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 {
-	bSimulatePhysics = bSimulate;
+	bSimulatePhysics = SimulatePhysics;
 	if (bSimulatePhysics)
 	{
 		Mesh->SetSimulatePhysics(true);
@@ -77,6 +89,22 @@ bool AWeapon::GetSimulatePhysics()
 {
 	return bSimulatePhysics;
 }
+
+void AWeapon::SetFiringStatus(bool Firing)
+{
+	bFiring = Firing;
+}
+
+bool AWeapon::GetFiringStatus()
+{
+	return bFiring;
+}
+
+void AWeapon::SetParentCharacter(AMainCharacter* NewParentCharacter)
+{
+	ParentCharacter = NewParentCharacter;
+}
+
 
 void AWeapon::OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {

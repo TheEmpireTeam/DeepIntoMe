@@ -17,7 +17,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 
-	//Name of a scoket for weapon
+	//Name of a socket for weapon
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	FName SocketName;
 

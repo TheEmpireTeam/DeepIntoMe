@@ -45,14 +45,6 @@ void AMainCharacter::BeginPlay()
 void AMainCharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-
-	static float Time;
-	Time += DeltaTime;
-
-	if (bFiring && Time > 0.5f && Weapon!=NULL)
-	{
-		Weapon->Fire();
-	}
 }
 
 // Called to bind functionality to input
@@ -102,12 +94,12 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	bFiring = true;
+	Weapon->SetFiringStatus(true);
 }
 
 void AMainCharacter::StopFire()
 {
-	bFiring = false;
+	Weapon->SetFiringStatus(false);
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
@@ -115,10 +107,12 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 	if (Weapon != NULL)
 	{
 		Weapon->DetachRootComponentFromParent(true);
+		Weapon->SetParentCharacter(NULL);
 		Weapon->SetSimulatePhysics(true);
 		Weapon = NULL;
 	}
 	Weapon = NewWeapon;
+	Weapon->SetParentCharacter(this);
 	Weapon->SetSimulatePhysics(false);
 	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
 }
