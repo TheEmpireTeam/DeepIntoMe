@@ -4,6 +4,7 @@
 
 #include "GameFramework/Actor.h"
 #include "UsableInterface.h"
+#include "Projectile.h"
 #include "Weapon.generated.h"
 
 //Warning: GOVNOKODIK 
@@ -23,6 +24,9 @@ private:
 	//Message that will appear on the screen
 	UPROPERTY(EditAnywhere, Category = ActionSettings)
 	FString ActionMessage;
+
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	TSubclassOf<AProjectile> ProjectileType;
 
 	//Weapon's collision for pick up
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PickUpCollision, meta = (AllowPrivateAccess = "true"))

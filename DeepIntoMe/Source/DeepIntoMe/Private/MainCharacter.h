@@ -37,6 +37,8 @@ private:
 
 	float BaseRate;
 
+	bool bFiring;
+
 
 public:
 	// Sets default values for this character's properties
@@ -62,6 +64,10 @@ public:
 
 	//Move character right
 	void MoveRight(float Value);
+
+	void StartFire();
+
+	void StopFire();
 
 	//Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)

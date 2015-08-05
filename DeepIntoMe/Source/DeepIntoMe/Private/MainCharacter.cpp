@@ -46,6 +46,13 @@ void AMainCharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	static float Time;
+	Time += DeltaTime;
+
+	if (bFiring && Time > 0.5f && Weapon!=NULL)
+	{
+		Weapon->Fire();
+	}
 }
 
 // Called to bind functionality to input
@@ -61,10 +68,11 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
-	InputComponent->BindAction("Experiment", IE_Pressed, this, &AMainCharacter::UseItem);
+	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
+	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
+	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
 
 }
-
 
 void AMainCharacter::LookUp(float Value)
 {
@@ -90,6 +98,16 @@ void AMainCharacter::MoveRight(float Value)
 	{
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+void AMainCharacter::StartFire()
+{
+	bFiring = true;
+}
+
+void AMainCharacter::StopFire()
+{
+	bFiring = false;
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)

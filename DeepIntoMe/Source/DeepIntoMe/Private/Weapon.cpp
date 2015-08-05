@@ -4,9 +4,6 @@
 #include "MainCharacter.h"
 #include "Weapon.h"
 
-
-
-
 // Sets default values
 AWeapon::AWeapon()
 {
@@ -53,7 +50,8 @@ FString AWeapon::GetActionMessage()
 
 void AWeapon::Fire()
 {
-
+	if (GEngine != NULL)
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString("Shoot"));
 }
 
 void AWeapon::SetSimulatePhysics(bool bSimulate)
