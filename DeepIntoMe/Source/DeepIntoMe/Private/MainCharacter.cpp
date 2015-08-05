@@ -98,7 +98,6 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 	if (Weapon != NULL)
 	{
 		Weapon->DetachRootComponentFromParent(true);
-		//Weapon->Mesh->DetachFromParent(true);
 		Weapon->Mesh->SetSimulatePhysics(true);
 		Weapon->Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 		Weapon->PickUpCollision->bGenerateOverlapEvents = true;
@@ -110,7 +109,6 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 	Weapon->Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 	Weapon->PickUpCollision->bGenerateOverlapEvents = false;
 	Weapon->PickUpCollision->SetCollisionProfileName(TEXT("NoCollison"));
-	//Weapon->Mesh->AttachTo(FirstPersonMesh, SocketName);
 	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
 }
 
