@@ -30,10 +30,13 @@ private:
 	USkeletalMeshComponent* FirstPersonMesh;
 
 	//An item that i can use right now
-	IUsableInterface* UsableItem;
+	//IUsableInterface* UsableItem;
 
 	//Actual pointer to a weapon
 	AWeapon* Weapon;
+
+	//Items i can use right now
+	TMap<FString, IUsableInterface*> Items;
 
 	float BaseRate;
 

@@ -119,24 +119,35 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 
 void AMainCharacter::UseItem()
 {
-	if (UsableItem != NULL)
+	if (Items.Num())
 	{
-		UsableItem->OnUsed(this);
+		auto Iterator = Items.CreateIterator();
+		Iterator.Value()->OnUsed(this);
 	}
 }
 
 void AMainCharacter::OnBeginOverlap(AActor* OtherActor)
 {
-	UsableItem = Cast<IUsableInterface>(OtherActor);
+	
+	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
 
-	if (GEngine != NULL && UsableItem != NULL)
+	if (UsableItem != NULL)
 	{
-		FString Message = UsableItem->GetActionMessage();
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, Message);
+		if (GEngine != NULL)
+		{
+			FString Message = UsableItem->GetActionMessage();
+			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, Message);
+		}
+		Items.Add(OtherActor->GetHumanReadableName(), UsableItem);
 	}
 }
 
 void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 {
+	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
 
+	if (UsableItem != NULL)
+	{
+		Items.Remove(OtherActor->GetHumanReadableName());
+	}
 }
