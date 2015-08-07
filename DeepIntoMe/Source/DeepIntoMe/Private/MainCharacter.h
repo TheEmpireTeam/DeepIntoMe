@@ -68,6 +68,8 @@ public:
 	//Move character right
 	void MoveRight(float Value);
 
+	FVector GetEyesLocation();
+
 	void StartFire();
 
 	void StopFire();
