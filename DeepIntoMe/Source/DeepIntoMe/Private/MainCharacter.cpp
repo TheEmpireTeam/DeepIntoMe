@@ -102,6 +102,11 @@ void AMainCharacter::StopFire()
 	Weapon->SetFiringStatus(false);
 }
 
+FVector AMainCharacter::GetEyesLocation()
+{
+	return Camera->GetComponentLocation();
+}
+
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)

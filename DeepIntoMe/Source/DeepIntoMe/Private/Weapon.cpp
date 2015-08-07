@@ -58,12 +58,28 @@ FString AWeapon::GetActionMessage()
 
 void AWeapon::Fire()
 {
+	/**Warning: Experimental GOVNOKOD*/
+	FHitResult OutHit;
+	FVector Start = ParentCharacter->GetEyesLocation();
+	FRotator Rotation = ParentCharacter->GetControlRotation();
+	FVector End = Start + Rotation.Vector() * 100000;
+	FCollisionQueryParams Params;
+	FVector HitLocation;
+	bool hit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+	if (hit)
+	{
+		HitLocation = OutHit.Location;
+	}
+	else
+	{
+		HitLocation = End;
+	}
 	if (GEngine != NULL)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString("Shoot"));
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString::FromInt(hit));
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, ParentCharacter->GetControlRotation(), SpawnParameters);
+	GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, (HitLocation-FireLocation).Rotation(), SpawnParameters);
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
