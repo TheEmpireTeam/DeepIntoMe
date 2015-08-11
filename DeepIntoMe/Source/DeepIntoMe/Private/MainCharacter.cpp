@@ -19,6 +19,7 @@ AMainCharacter::AMainCharacter()
 	Camera->AttachTo(GetCapsuleComponent());
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
+	Health = 100;
 
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -35,8 +36,6 @@ void AMainCharacter::BeginPlay()
 	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
 	if (NewWeapon != NULL)
 	{
-		if (GEngine != NULL)
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString("Got Spawn Weapon"));
 		AddWeapon(NewWeapon);
 	}
 }
@@ -155,4 +154,12 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 	{
 		Items.Remove(OtherActor->GetHumanReadableName());
 	}
+}
+
+float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	Health -= DamageAmount;
+	if (GEngine != NULL)
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, this->GetHumanReadableName().Append(FString(" ").Append(FString::SanitizeFloat(Health))));
+	return DamageAmount;
 }

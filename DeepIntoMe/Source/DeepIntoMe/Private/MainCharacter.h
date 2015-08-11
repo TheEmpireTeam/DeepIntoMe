@@ -35,6 +35,9 @@ private:
 	//Actual pointer to a weapon
 	AWeapon* Weapon;
 
+	UPROPERTY(EditAnywhere, Category = Health)
+	float Health;
+
 	//Items i can use right now
 	TMap<FString, IUsableInterface*> Items;
 
@@ -73,6 +76,9 @@ public:
 	void StartFire();
 
 	void StopFire();
+
+	UFUNCTION()
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	//Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)

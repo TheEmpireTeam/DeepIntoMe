@@ -66,8 +66,7 @@ void AWeapon::Fire()
 	FVector End = Start + Rotation.Vector() * 100000;
 	FCollisionQueryParams Params;
 	FVector HitLocation;
-	bool hit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params);
-	if (hit)
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params))
 	{
 		HitLocation = OutHit.Location;
 	}
@@ -75,8 +74,6 @@ void AWeapon::Fire()
 	{
 		HitLocation = End;
 	}
-	if (GEngine != NULL)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString::FromInt(hit));
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
@@ -92,7 +89,7 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 		Mesh->SetSimulatePhysics(true);
 		Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 		PickUpCollision->bGenerateOverlapEvents = true;
-		PickUpCollision->SetCollisionProfileName(TEXT("OverlapAll"));
+		PickUpCollision->SetCollisionProfileName(TEXT("Trigger"));
 	}
 	else
 	{
