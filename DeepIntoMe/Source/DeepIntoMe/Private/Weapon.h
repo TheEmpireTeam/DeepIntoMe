@@ -42,6 +42,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditAnywhere)
+	float FireRate;
+
 	bool bSimulatePhysics;
 
 	bool bFiring;

@@ -16,6 +16,7 @@ AWeapon::AWeapon()
 	PickUpCollision->AttachTo(Mesh);
 	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
+	FireRate = 1;
 
 	SetSimulatePhysics(true);
 }
@@ -35,7 +36,7 @@ void AWeapon::Tick(float DeltaTime)
 	static float Time = 0;
 	Time += DeltaTime;
 
-	if (bFiring && Time > 3.0f)
+	if (bFiring && Time > (1/FireRate))
 	{
 		Fire();
 		Time = 0;
@@ -79,7 +80,8 @@ void AWeapon::Fire()
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, (HitLocation-FireLocation).Rotation(), SpawnParameters);
+	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, (HitLocation - FireLocation).Rotation(), SpawnParameters);
+	Projectile->SetInstigator(ParentCharacter);
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
