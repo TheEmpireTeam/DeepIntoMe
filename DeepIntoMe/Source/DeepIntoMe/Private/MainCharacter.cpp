@@ -110,9 +110,10 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)
 	{
-		Weapon->DetachRootComponentFromParent(true);
+		Weapon->DetachRootComponentFromParent(false);
 		Weapon->SetParentCharacter(NULL);
 		Weapon->SetSimulatePhysics(true);
+		Weapon->SetActorLocation(NewWeapon->GetActorLocation());
 		Weapon = NULL;
 	}
 	Weapon = NewWeapon;

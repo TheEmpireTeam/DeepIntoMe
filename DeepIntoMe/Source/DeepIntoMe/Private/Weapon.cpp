@@ -87,7 +87,7 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 	if (bSimulatePhysics)
 	{
 		Mesh->SetSimulatePhysics(true);
-		Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+		Mesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 		PickUpCollision->bGenerateOverlapEvents = true;
 		PickUpCollision->SetCollisionProfileName(TEXT("Trigger"));
 	}
