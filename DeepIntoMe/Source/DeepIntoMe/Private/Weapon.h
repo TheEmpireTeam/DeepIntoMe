@@ -42,12 +42,29 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Mesh;
 
+	//Amount of bullets per second
 	UPROPERTY(EditAnywhere, Category = Firing)
 	float FireRate;
 
+	//Does weapon simulate physics
+	UPROPERTY()
 	bool bSimulatePhysics;
 
+	//Is weapon firing right now
+	UPROPERTY()
 	bool bFiring;
+
+	//Amount of clips
+	UPROPERTY(EditAnywhere, Category = Firing)
+	int32 Clips;
+
+	//How many bullets in a clip we are using right now
+	UPROPERTY()
+	int32 CurrentBulletCount;
+
+	//How many bullets can one clip handle
+	UPROPERTY(EditAnywhere, Category = Firing)
+	int32 ClipCapacity;
 
 public:
 
@@ -61,6 +78,8 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	void Fire();
+
+	void Reload();
 
 	void SetSimulatePhysics(bool SimulatePhyics);
 

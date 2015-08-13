@@ -33,13 +33,26 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 	static float Time = 0;
 	Time += DeltaTime;
 
 	if (bFiring && Time > (1/FireRate))
 	{
-		Fire();
-		Time = 0;
+		if (CurrentBulletCount)
+		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CurrentBulletCount));
+			}			
+			Fire();
+			CurrentBulletCount--;
+			Time = 0;
+		}
+		else
+		{
+			Reload();
+		}
 	}
 }
 
@@ -61,8 +74,9 @@ void AWeapon::Fire()
 {
 	/**Warning: Experimental GOVNOKOD*/
 	FHitResult OutHit;
-	FVector Start = ParentCharacter->GetEyesLocation();
-	FRotator Rotation = ParentCharacter->GetControlRotation();
+	FVector Start; 
+	FRotator Rotation;
+	ParentCharacter->GetActorEyesViewPoint(Start, Rotation);
 	FVector End = Start + Rotation.Vector() * 100000;
 	FCollisionQueryParams Params;
 	FVector HitLocation;
@@ -97,6 +111,15 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 		Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 		PickUpCollision->bGenerateOverlapEvents = false;
 		PickUpCollision->SetCollisionProfileName(TEXT("NoCollison"));
+	}
+}
+
+void AWeapon::Reload()
+{
+	if (Clips)
+	{
+		CurrentBulletCount = ClipCapacity;
+		Clips--;
 	}
 }
 

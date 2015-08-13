@@ -62,6 +62,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
+	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
 
 }
 
@@ -93,33 +94,35 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	Weapon->SetFiringStatus(true);
+	if (Weapon)
+	{
+		Weapon->SetFiringStatus(true);
+	}
 }
 
 void AMainCharacter::StopFire()
 {
-	Weapon->SetFiringStatus(false);
+	if (Weapon)
+	{
+		Weapon->SetFiringStatus(false);
+	}
 }
 
-FVector AMainCharacter::GetEyesLocation()
+void AMainCharacter::Reload()
 {
-	return Camera->GetComponentLocation();
+	if (Weapon)
+	{
+		Weapon->Reload();
+	}
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)
 	{
-		Weapon->DetachRootComponentFromParent(false);
-		Weapon->SetParentCharacter(NULL);
-		Weapon->SetSimulatePhysics(true);
-		Weapon->SetActorLocation(NewWeapon->GetActorLocation());
-		Weapon = NULL;
+		DetachWeaponFromCharacter(NewWeapon->GetActorLocation());
 	}
-	Weapon = NewWeapon;
-	Weapon->SetParentCharacter(this);
-	Weapon->SetSimulatePhysics(false);
-	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+	AttachWeaponToCharacter(NewWeapon);
 }
 
 void AMainCharacter::UseItem()
@@ -160,7 +163,32 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	Health -= DamageAmount;
-	if (GEngine != NULL)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, this->GetHumanReadableName().Append(FString(" ").Append(FString::SanitizeFloat(Health))));
+	if (Health < 0)
+	{
+		OnDying();
+		Destroy();
+	}
 	return DamageAmount;
+}
+
+void AMainCharacter::OnDying()
+{
+	DetachWeaponFromCharacter(Weapon->GetActorLocation());
+}
+
+void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
+{
+	Weapon = NewWeapon;
+	Weapon->SetParentCharacter(this);
+	Weapon->SetSimulatePhysics(false);
+	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+}
+
+void AMainCharacter::DetachWeaponFromCharacter(FVector WeaponLocation)
+{
+	Weapon->DetachRootComponentFromParent(false);
+	Weapon->SetParentCharacter(NULL);
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetActorLocation(WeaponLocation);
+	Weapon = NULL;
 }

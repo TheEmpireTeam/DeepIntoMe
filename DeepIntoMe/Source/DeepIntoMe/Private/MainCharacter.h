@@ -29,10 +29,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* FirstPersonMesh;
 
-	//An item that i can use right now
-	//IUsableInterface* UsableItem;
-
 	//Actual pointer to a weapon
+	UPROPERTY()
 	AWeapon* Weapon;
 
 	UPROPERTY(EditAnywhere, Category = Health)
@@ -41,8 +39,10 @@ private:
 	//Items i can use right now
 	TMap<FString, IUsableInterface*> Items;
 
+	UPROPERTY(EditAnywhere)
 	float BaseRate;
 
+	UPROPERTY()
 	bool bFiring;
 
 
@@ -71,12 +71,23 @@ public:
 	//Move character right
 	void MoveRight(float Value);
 
-	FVector GetEyesLocation();
-
+	//Start firing process
 	void StartFire();
 
+	//Stops firing process
 	void StopFire();
 
+	//Start reloading
+	void Reload();
+
+	//Attaches weapon to a character and set it to not simulate physics
+	void AttachWeaponToCharacter(AWeapon* NewWeapon);
+
+	//Detaches weapon from character and set it to simulate physics
+	//Takes a new location for detached weapon
+	void DetachWeaponFromCharacter(FVector WeaponLocation);
+
+	//Handles damage
 	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -89,7 +100,11 @@ public:
 
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
+	
+	//Called when character is dying 
+	void OnDying();
 
+	//For using items that currently avalaible
 	void UseItem();
 	
 };
