@@ -63,7 +63,8 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
 	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
-
+	InputComponent->BindAction("Aim", IE_Pressed, this, &AMainCharacter::StartAiming);
+	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
 }
 
 void AMainCharacter::LookUp(float Value)
@@ -96,6 +97,7 @@ void AMainCharacter::StartFire()
 {
 	if (Weapon)
 	{
+		bFiring = true;
 		Weapon->SetFiringStatus(true);
 	}
 }
@@ -104,6 +106,7 @@ void AMainCharacter::StopFire()
 {
 	if (Weapon)
 	{
+		bFiring = false;
 		Weapon->SetFiringStatus(false);
 	}
 }
@@ -112,8 +115,19 @@ void AMainCharacter::Reload()
 {
 	if (Weapon)
 	{
+		bReloading = true;
 		Weapon->Reload();
 	}
+}
+
+void AMainCharacter::StartAiming()
+{
+	bAiming = true;
+}
+
+void AMainCharacter::StopAiming()
+{
+	bAiming = false;
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)

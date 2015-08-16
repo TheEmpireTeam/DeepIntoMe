@@ -42,8 +42,17 @@ private:
 	UPROPERTY(EditAnywhere)
 	float BaseRate;
 
-	UPROPERTY()
+public:
+
+
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bFiring;
+
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	bool bReloading;
+
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	bool bAiming;
 
 
 public:
@@ -79,6 +88,10 @@ public:
 
 	//Start reloading
 	void Reload();
+
+	void StartAiming();
+
+	void StopAiming();
 
 	//Attaches weapon to a character and set it to not simulate physics
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);
