@@ -16,6 +16,7 @@ AWeapon::AWeapon()
 	PickUpCollision->AttachTo(Mesh);
 	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
+	FireRate = 1;
 
 	SetSimulatePhysics(true);
 }
@@ -32,13 +33,26 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 	static float Time = 0;
 	Time += DeltaTime;
 
-	if (bFiring && Time > 3.0f)
+	if (bFiring && Time > (1/FireRate))
 	{
-		Fire();
-		Time = 0;
+		if (CurrentBulletCount)
+		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CurrentBulletCount));
+			}			
+			Fire();
+			CurrentBulletCount--;
+			Time = 0;
+		}
+		else
+		{
+			Reload();
+		}
 	}
 }
 
@@ -60,13 +74,13 @@ void AWeapon::Fire()
 {
 	/**Warning: Experimental GOVNOKOD*/
 	FHitResult OutHit;
-	FVector Start = ParentCharacter->GetEyesLocation();
-	FRotator Rotation = ParentCharacter->GetControlRotation();
+	FVector Start; 
+	FRotator Rotation;
+	ParentCharacter->GetActorEyesViewPoint(Start, Rotation);
 	FVector End = Start + Rotation.Vector() * 100000;
 	FCollisionQueryParams Params;
 	FVector HitLocation;
-	bool hit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params);
-	if (hit)
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params))
 	{
 		HitLocation = OutHit.Location;
 	}
@@ -74,12 +88,11 @@ void AWeapon::Fire()
 	{
 		HitLocation = End;
 	}
-	if (GEngine != NULL)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString::FromInt(hit));
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, (HitLocation-FireLocation).Rotation(), SpawnParameters);
+	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, (HitLocation - FireLocation).Rotation(), SpawnParameters);
+	Projectile->SetInstigator(ParentCharacter);
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
@@ -88,9 +101,9 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 	if (bSimulatePhysics)
 	{
 		Mesh->SetSimulatePhysics(true);
-		Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+		Mesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 		PickUpCollision->bGenerateOverlapEvents = true;
-		PickUpCollision->SetCollisionProfileName(TEXT("OverlapAll"));
+		PickUpCollision->SetCollisionProfileName(TEXT("Trigger"));
 	}
 	else
 	{
@@ -98,6 +111,15 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 		Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 		PickUpCollision->bGenerateOverlapEvents = false;
 		PickUpCollision->SetCollisionProfileName(TEXT("NoCollison"));
+	}
+}
+
+void AWeapon::Reload()
+{
+	if (Clips)
+	{
+		CurrentBulletCount = ClipCapacity;
+		Clips--;
 	}
 }
 

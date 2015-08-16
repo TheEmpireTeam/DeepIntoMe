@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Projectile.generated.h"
 
 UCLASS()
@@ -13,11 +14,21 @@ class AProjectile : public AActor
 private:
 
 	//Projectile's mesh
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* Collision;
+
+	//Projectile's mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ProjectileMovement, meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovement;
+
+	//Amount of damage caused by this projectile
+	UPROPERTY(EditAnywhere)
+	float Damage;
+
+	ACharacter* Instigator;
 
 public:	
 	// Sets default values for this actor's properties
@@ -29,6 +40,9 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	
+	void SetInstigator(ACharacter* NewInstigator);
+
+	UFUNCTION()
+	void OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 };

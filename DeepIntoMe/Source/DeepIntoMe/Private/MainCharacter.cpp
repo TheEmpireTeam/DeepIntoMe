@@ -19,6 +19,7 @@ AMainCharacter::AMainCharacter()
 	Camera->AttachTo(GetCapsuleComponent());
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
+	Health = 100;
 
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -35,8 +36,6 @@ void AMainCharacter::BeginPlay()
 	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
 	if (NewWeapon != NULL)
 	{
-		if (GEngine != NULL)
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString("Got Spawn Weapon"));
 		AddWeapon(NewWeapon);
 	}
 }
@@ -63,7 +62,9 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
-
+	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
+	InputComponent->BindAction("Aim", IE_Pressed, this, &AMainCharacter::StartAiming);
+	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
 }
 
 void AMainCharacter::LookUp(float Value)
@@ -94,32 +95,48 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	Weapon->SetFiringStatus(true);
+	if (Weapon)
+	{
+		bFiring = true;
+		Weapon->SetFiringStatus(true);
+	}
 }
 
 void AMainCharacter::StopFire()
 {
-	Weapon->SetFiringStatus(false);
+	if (Weapon)
+	{
+		bFiring = false;
+		Weapon->SetFiringStatus(false);
+	}
 }
 
-FVector AMainCharacter::GetEyesLocation()
+void AMainCharacter::Reload()
 {
-	return Camera->GetComponentLocation();
+	if (Weapon)
+	{
+		bReloading = true;
+		Weapon->Reload();
+	}
+}
+
+void AMainCharacter::StartAiming()
+{
+	bAiming = true;
+}
+
+void AMainCharacter::StopAiming()
+{
+	bAiming = false;
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)
 	{
-		Weapon->DetachRootComponentFromParent(true);
-		Weapon->SetParentCharacter(NULL);
-		Weapon->SetSimulatePhysics(true);
-		Weapon = NULL;
+		DetachWeaponFromCharacter(NewWeapon->GetActorLocation());
 	}
-	Weapon = NewWeapon;
-	Weapon->SetParentCharacter(this);
-	Weapon->SetSimulatePhysics(false);
-	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+	AttachWeaponToCharacter(NewWeapon);
 }
 
 void AMainCharacter::UseItem()
@@ -155,4 +172,37 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 	{
 		Items.Remove(OtherActor->GetHumanReadableName());
 	}
+}
+
+float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	Health -= DamageAmount;
+	if (Health < 0)
+	{
+		OnDying();
+		Destroy();
+	}
+	return DamageAmount;
+}
+
+void AMainCharacter::OnDying()
+{
+	DetachWeaponFromCharacter(Weapon->GetActorLocation());
+}
+
+void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
+{
+	Weapon = NewWeapon;
+	Weapon->SetParentCharacter(this);
+	Weapon->SetSimulatePhysics(false);
+	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+}
+
+void AMainCharacter::DetachWeaponFromCharacter(FVector WeaponLocation)
+{
+	Weapon->DetachRootComponentFromParent(false);
+	Weapon->SetParentCharacter(NULL);
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetActorLocation(WeaponLocation);
+	Weapon = NULL;
 }
