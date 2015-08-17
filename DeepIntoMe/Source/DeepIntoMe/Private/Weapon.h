@@ -40,7 +40,7 @@ private:
 
 	//Weapon's mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* Mesh;
+	USkeletalMeshComponent* Mesh;
 
 	//Amount of bullets per second
 	UPROPERTY(EditAnywhere, Category = Firing)
@@ -90,6 +90,8 @@ public:
 	void SetFiringStatus(bool Firing);
 
 	bool GetFiringStatus();
+
+	USkeletalMeshComponent* GetWeaponMesh();
 
 	UFUNCTION()
 	void OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);

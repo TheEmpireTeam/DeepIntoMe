@@ -139,6 +139,11 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 	AttachWeaponToCharacter(NewWeapon);
 }
 
+USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
+{
+	return Weapon->GetWeaponMesh();
+}
+
 void AMainCharacter::UseItem()
 {
 	if (Items.Num())

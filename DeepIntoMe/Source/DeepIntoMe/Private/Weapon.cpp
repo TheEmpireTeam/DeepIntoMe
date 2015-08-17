@@ -10,7 +10,7 @@ AWeapon::AWeapon()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
 	PickUpCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Pick Up Collision"));
 	PickUpCollision->AttachTo(Mesh);
@@ -136,6 +136,11 @@ void AWeapon::SetFiringStatus(bool Firing)
 bool AWeapon::GetFiringStatus()
 {
 	return bFiring;
+}
+
+USkeletalMeshComponent* AWeapon::GetWeaponMesh()
+{
+	return Mesh;
 }
 
 void AWeapon::SetParentCharacter(AMainCharacter* NewParentCharacter)

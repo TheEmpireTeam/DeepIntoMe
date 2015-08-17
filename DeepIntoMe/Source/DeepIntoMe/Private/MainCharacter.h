@@ -93,10 +93,10 @@ public:
 
 	void StopAiming();
 
-	//Attaches weapon to a character and set it to not simulate physics
+	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);
 
-	//Detaches weapon from character and set it to simulate physics
+	//Detaches weapon from character and set it to simulate physics and to overlap
 	//Takes a new location for detached weapon
 	void DetachWeaponFromCharacter(FVector WeaponLocation);
 
@@ -107,6 +107,9 @@ public:
 	//Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AddWeapon(AWeapon* NewWeapon);
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	USkeletalMeshComponent* GetWeaponMesh();
 
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);
