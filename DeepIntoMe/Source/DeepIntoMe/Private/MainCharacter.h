@@ -54,6 +54,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bAiming;
 
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	bool bCrouching;
+
 
 public:
 	// Sets default values for this character's properties
@@ -92,6 +95,10 @@ public:
 	void StartAiming();
 
 	void StopAiming();
+
+	void StartCrouching();
+
+	void StopCrouching();
 
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);

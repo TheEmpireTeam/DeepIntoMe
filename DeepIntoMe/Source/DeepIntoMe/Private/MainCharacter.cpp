@@ -65,6 +65,9 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
 	InputComponent->BindAction("Aim", IE_Pressed, this, &AMainCharacter::StartAiming);
 	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
+	InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartAiming);
+	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopAiming);
+
 }
 
 void AMainCharacter::LookUp(float Value)
@@ -128,6 +131,16 @@ void AMainCharacter::StartAiming()
 void AMainCharacter::StopAiming()
 {
 	bAiming = false;
+}
+
+void AMainCharacter::StartCrouching()
+{
+	bCrouching = true;
+}
+
+void AMainCharacter::StopCrouching()
+{
+	bCrouching = false;
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
