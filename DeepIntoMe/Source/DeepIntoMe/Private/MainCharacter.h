@@ -54,8 +54,14 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bAiming;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(BlueprintReadWrite, Category = Movement)
 	bool bCrouching;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	float XLookRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	float YLookRate;
 
 
 public:
@@ -105,7 +111,7 @@ public:
 
 	//Detaches weapon from character and set it to simulate physics and to overlap
 	//Takes a new location for detached weapon
-	void DetachWeaponFromCharacter(FVector WeaponLocation);
+	void DetachWeaponFromCharacter(FTransform NewTransform);
 
 	//Handles damage
 	UFUNCTION()

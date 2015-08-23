@@ -20,7 +20,7 @@ AMainCharacter::AMainCharacter()
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
 	Health = 100;
-
+	
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
 
@@ -65,18 +65,20 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
 	InputComponent->BindAction("Aim", IE_Pressed, this, &AMainCharacter::StartAiming);
 	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
-	InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartAiming);
-	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopAiming);
+	InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartCrouching);
+	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouching);
 
 }
 
 void AMainCharacter::LookUp(float Value)
 {
+	YLookRate = Value;
 	AddControllerPitchInput(Value * BaseRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AMainCharacter::LookRight(float Value)
 {
+	XLookRate = Value;
 	AddControllerYawInput(Value * BaseRate * GetWorld()->GetDeltaSeconds());
 }
 
@@ -98,7 +100,7 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	if (Weapon)
+	if (Weapon && !bReloading)
 	{
 		bFiring = true;
 		Weapon->SetFiringStatus(true);
@@ -147,7 +149,7 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)
 	{
-		DetachWeaponFromCharacter(NewWeapon->GetActorLocation());
+		DetachWeaponFromCharacter(NewWeapon->GetTransform());
 	}
 	AttachWeaponToCharacter(NewWeapon);
 }
@@ -205,7 +207,7 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void AMainCharacter::OnDying()
 {
-	DetachWeaponFromCharacter(Weapon->GetActorLocation());
+	DetachWeaponFromCharacter(Weapon->GetTransform());
 }
 
 void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
@@ -216,11 +218,11 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
 }
 
-void AMainCharacter::DetachWeaponFromCharacter(FVector WeaponLocation)
+void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
 {
 	Weapon->DetachRootComponentFromParent(false);
 	Weapon->SetParentCharacter(NULL);
 	Weapon->SetSimulatePhysics(true);
-	Weapon->SetActorLocation(WeaponLocation);
+	Weapon->SetActorTransform(NewTransform);
 	Weapon = NULL;
 }
