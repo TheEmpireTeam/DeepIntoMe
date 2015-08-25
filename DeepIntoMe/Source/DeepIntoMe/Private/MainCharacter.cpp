@@ -67,8 +67,8 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
 	InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartCrouching);
 	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouching);
-	InputComponent->BindAction("Running", IE_Pressed, this, &AMainCharacter::StartCrouching);
-	InputComponent->BindAction("Running", IE_Released, this, &AMainCharacter::StopCrouching);
+	InputComponent->BindAction("Running", IE_Pressed, this, &AMainCharacter::StartRunning);
+	InputComponent->BindAction("Running", IE_Released, this, &AMainCharacter::StopRunning);
 
 }
 
