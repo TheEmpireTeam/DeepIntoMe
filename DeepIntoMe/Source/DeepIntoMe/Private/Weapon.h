@@ -91,6 +91,10 @@ public:
 
 	bool GetFiringStatus();
 
+	int32 GetCurrentBulletCount();
+
+	int32 GetCurrentClipCount();
+
 	USkeletalMeshComponent* GetWeaponMesh();
 
 	UFUNCTION()

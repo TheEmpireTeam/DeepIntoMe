@@ -36,6 +36,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = Health)
 	float Health;
 
+	UPROPERTY(EditAnywhere, Category = Walking)
+	float RunningSpeed;
+
+	UPROPERTY(EditAnywhere, Category = Walking)
+	float WalkingSpeed;
+
 	//Items i can use right now
 	TMap<FString, IUsableInterface*> Items;
 
@@ -56,6 +62,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = Movement)
 	bool bCrouching;
+
+	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	bool bRunning;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	float XLookRate;
@@ -106,6 +115,12 @@ public:
 
 	void StopCrouching();
 
+	void StartRunning();
+
+	void StopRunning();
+
+	void SetRunningStatus(bool Running);
+
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);
 
@@ -123,6 +138,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	USkeletalMeshComponent* GetWeaponMesh();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	AWeapon* GetWeapon();
 
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);

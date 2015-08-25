@@ -138,6 +138,16 @@ bool AWeapon::GetFiringStatus()
 	return bFiring;
 }
 
+int32 AWeapon::GetCurrentBulletCount()
+{
+	return CurrentBulletCount;
+}
+
+int32 AWeapon::GetCurrentClipCount()
+{
+	return Clips;
+}
+
 USkeletalMeshComponent* AWeapon::GetWeaponMesh()
 {
 	return Mesh;

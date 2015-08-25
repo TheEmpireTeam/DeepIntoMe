@@ -67,6 +67,8 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
 	InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartCrouching);
 	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouching);
+	InputComponent->BindAction("Running", IE_Pressed, this, &AMainCharacter::StartCrouching);
+	InputComponent->BindAction("Running", IE_Released, this, &AMainCharacter::StopCrouching);
 
 }
 
@@ -145,6 +147,29 @@ void AMainCharacter::StopCrouching()
 	bCrouching = false;
 }
 
+void AMainCharacter::StartRunning()
+{
+	SetRunningStatus(true);
+}
+
+void AMainCharacter::StopRunning()
+{
+	SetRunningStatus(false);
+}
+
+void AMainCharacter::SetRunningStatus(bool Running)
+{
+	bRunning = Running;
+	if (bRunning)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
+	}
+}
+
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon != NULL)
@@ -156,7 +181,19 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
 {
-	return Weapon->GetWeaponMesh();
+	if (Weapon)
+	{
+		return Weapon->GetWeaponMesh();
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+AWeapon* AMainCharacter::GetWeapon()
+{
+	return Weapon;
 }
 
 void AMainCharacter::UseItem()
