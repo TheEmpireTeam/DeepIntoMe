@@ -46,6 +46,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = Firing)
 	float FireRate;
 
+	//Maximum offset for firing 
+	UPROPERTY(EditAnywhere, Category = Firing)
+	float MaxOffset;
+
+	//offset rate for firing 
+	UPROPERTY(EditAnywhere, Category = Firing)
+	float OffsetRate;
+
 	//Does weapon simulate physics
 	UPROPERTY()
 	bool bSimulatePhysics;
@@ -61,6 +69,10 @@ private:
 	//How many bullets in a clip we are using right now
 	UPROPERTY()
 	int32 CurrentBulletCount;
+
+	//How many shots you make while firing status is true
+	UPROPERTY()
+	int32 CurrentShotsCount;
 
 	//How many bullets can one clip handle
 	UPROPERTY(EditAnywhere, Category = Firing)

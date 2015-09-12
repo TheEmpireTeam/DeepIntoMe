@@ -18,6 +18,11 @@ AWeapon::AWeapon()
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
 	FireRate = 1;
 
+	//----Values only for debug---------
+	MaxOffset = 0.01;
+	OffsetRate = 0.001;
+	//----------------------------------
+
 	SetSimulatePhysics(true);
 }
 
@@ -44,7 +49,7 @@ void AWeapon::Tick(float DeltaTime)
 			if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CurrentBulletCount));
-			}			
+			}
 			Fire();
 			CurrentBulletCount--;
 			Time = 0;
@@ -80,6 +85,8 @@ void AWeapon::Fire()
 	FVector End = Start + Rotation.Vector() * 100000;
 	FCollisionQueryParams Params;
 	FVector HitLocation;
+	CurrentShotsCount++;
+	float Offset = FMath::Clamp<float>(CurrentShotsCount*OffsetRate, 0, MaxOffset);
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params))
 	{
 		HitLocation = OutHit.Location;
@@ -91,7 +98,12 @@ void AWeapon::Fire()
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, (HitLocation - FireLocation).Rotation(), SpawnParameters);
+	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1)+FMath::VRand()*Offset;
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::SanitizeFloat(Offset));
+	}
+	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 	Projectile->SetInstigator(ParentCharacter);
 }
 
@@ -131,6 +143,8 @@ bool AWeapon::GetSimulatePhysics()
 void AWeapon::SetFiringStatus(bool Firing)
 {
 	bFiring = Firing;
+	if (bFiring)
+		CurrentShotsCount = 0;
 }
 
 bool AWeapon::GetFiringStatus()
