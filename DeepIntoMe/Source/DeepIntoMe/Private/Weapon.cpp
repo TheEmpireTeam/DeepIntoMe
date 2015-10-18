@@ -82,7 +82,7 @@ void AWeapon::Fire()
 	FVector Start; 
 	FRotator Rotation;
 	ParentCharacter->GetActorEyesViewPoint(Start, Rotation);
-	FVector End = Start + Rotation.Vector() * 100000;
+	FVector End = Start + Rotation.Vector() * MAX_AIM_DISTANCE;
 	FCollisionQueryParams Params;
 	FVector HitLocation;
 	CurrentShotsCount++;
@@ -105,6 +105,7 @@ void AWeapon::Fire()
 	}
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 	Projectile->SetInstigator(ParentCharacter);
+	Projectile->SetDamage(Damage);
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)

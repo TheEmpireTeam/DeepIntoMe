@@ -57,3 +57,8 @@ void AProjectile::SetInstigator(ACharacter* NewInstigator)
 {
 	Instigator = NewInstigator;
 }
+
+void AProjectile::SetDamage(float NewDamage)
+{
+	Damage = NewDamage;
+}

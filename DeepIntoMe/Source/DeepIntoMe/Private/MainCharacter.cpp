@@ -20,6 +20,7 @@ AMainCharacter::AMainCharacter()
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
 	Health = 100;
+
 	
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -38,6 +39,7 @@ void AMainCharacter::BeginPlay()
 	{
 		AddWeapon(NewWeapon);
 	}
+	StopRunning();
 }
 
 // Called every frame

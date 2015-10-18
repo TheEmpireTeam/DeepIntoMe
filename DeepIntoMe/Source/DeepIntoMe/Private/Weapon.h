@@ -21,6 +21,8 @@ class AWeapon : public AActor, public IUsableInterface
 
 private:
 
+	const int MAX_AIM_DISTANCE = 100000; 
+
 	AMainCharacter* ParentCharacter;
 
 	//Message that will appear on the screen
@@ -77,6 +79,10 @@ private:
 	//How many bullets can one clip handle
 	UPROPERTY(EditAnywhere, Category = Firing)
 	int32 ClipCapacity;
+
+	//Amount of damage caused by this weapon
+	UPROPERTY(EditAnywhere)
+	float Damage;
 
 public:
 
