@@ -17,6 +17,7 @@ AWeapon::AWeapon()
 	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
 	FireRate = 1;
+	CurrentBulletCount = 30;
 
 	//----Values only for debug---------
 	MaxOffset = 0.01;
@@ -54,10 +55,10 @@ void AWeapon::Tick(float DeltaTime)
 			CurrentBulletCount--;
 			Time = 0;
 		}
-		else
+		/*else
 		{
 			Reload();
-		}
+		}*/
 	}
 }
 
