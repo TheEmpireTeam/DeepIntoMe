@@ -148,10 +148,10 @@ public:
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
 	
-	//Called when character is dying 
+	// Called when character is dying 
 	void OnDying();
 
-	//For using items that currently avalaible
+	// For using items that currently avalaible
 	void UseItem();
 	
 };

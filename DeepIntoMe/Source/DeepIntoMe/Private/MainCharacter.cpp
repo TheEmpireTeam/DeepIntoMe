@@ -24,7 +24,6 @@ AMainCharacter::AMainCharacter()
 	
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
-
 }
 
 // Called when the game starts or when spawned
@@ -239,7 +238,8 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	if (Health < 0)
 	{
 		OnDying();
-		Destroy();
+
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red , TEXT("Player died!"));
 	}
 	return DamageAmount;
 }
