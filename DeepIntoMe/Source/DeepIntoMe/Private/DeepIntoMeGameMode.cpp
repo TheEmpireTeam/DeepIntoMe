@@ -4,5 +4,9 @@
 #include "DeepIntoMeGameMode.h"
 
 
+ADeepIntoMeGameMode::ADeepIntoMeGameMode(const FObjectInitializer& ObjectInitializer)
+: Super(ObjectInitializer)
+{
 
+}
 

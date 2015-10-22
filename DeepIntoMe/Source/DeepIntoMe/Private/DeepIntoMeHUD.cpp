@@ -14,7 +14,6 @@ void ADeepIntoMeHUD::OnStateChanged_Implementation(EHUDState NewState)
 	CurrentState = NewState;
 }
 
-
 EHUDState ADeepIntoMeHUD::GetCurrentState()
 {
 	return CurrentState;

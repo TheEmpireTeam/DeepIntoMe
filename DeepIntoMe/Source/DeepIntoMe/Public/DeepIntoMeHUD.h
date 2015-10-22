@@ -25,6 +25,6 @@ public:
 	EHUDState GetCurrentState();
 
 	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
-	UFUNCTION(BlueprintNativeEvent, Category = "HUDEvents")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUDEvents")
 	void OnStateChanged(EHUDState NewState);
 };

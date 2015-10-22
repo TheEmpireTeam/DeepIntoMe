@@ -20,7 +20,7 @@ public:
 	FString GetPlayerName();
 	
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
 	FString PlayerName;
 	
 };
