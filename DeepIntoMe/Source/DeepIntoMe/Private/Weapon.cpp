@@ -99,11 +99,13 @@ void AWeapon::Fire()
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1)+FMath::VRand()*Offset;
+	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1) + FMath::VRand() * Offset;
+
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::SanitizeFloat(Offset));
 	}
+
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 	Projectile->SetInstigator(ParentCharacter);
 	Projectile->SetDamage(Damage);

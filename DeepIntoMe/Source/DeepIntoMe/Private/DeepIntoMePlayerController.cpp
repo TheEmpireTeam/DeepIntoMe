@@ -19,10 +19,3 @@ FString ADeepIntoMePlayerController::GetPlayerName()
 {
 	return PlayerName;
 }
-
-/*void ADeepIntoMePlayerController::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty> & OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ADeepIntoMePlayerController, PlayerName);
-}*/

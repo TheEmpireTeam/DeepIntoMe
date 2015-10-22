@@ -7,15 +7,11 @@
 
 
 USTRUCT()
-struct PlayerInfo
+struct FPlayerInfo
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY()
 	FString Nickname;
-
-public:
-	PlayerInfo();
 };
 
 UCLASS()
@@ -25,8 +21,8 @@ class DEEPINTOME_API ADeepIntoMeGameMode : public AGameMode
 
 	ADeepIntoMeGameMode(const FObjectInitializer& ObjectInitializer);
 	
-public:
-	UPROPERTY(Reliable, Replicated, NetMulticast)
-	TArray<PlayerInfo> ConnectedPlayers;
+/*public:
+	UPROPERTY(Replicated)
+	TArray<FPlayerInfo> ConnectedPlayers;*/
 
 };

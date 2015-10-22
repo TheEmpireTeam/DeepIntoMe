@@ -10,3 +10,9 @@ ADeepIntoMeGameMode::ADeepIntoMeGameMode(const FObjectInitializer& ObjectInitial
 
 }
 
+/*void ADeepIntoMeGameMode::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADeepIntoMeGameMode, ConnectedPlayers);
+}*/
