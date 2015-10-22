@@ -5,13 +5,24 @@
 #include "GameFramework/GameState.h"
 #include "DeepIntoMeGameState.generated.h"
 
+USTRUCT()
+struct FPlayerInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+	FString Nickname;
+};
+
 UCLASS()
 class ADeepIntoMeGameState : public AGameState
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FString> PlayerNames;
-	
+	UPROPERTY(Replicated)
+	TArray<FPlayerInfo> ConnectedPlayers;
+
+	UFUNCTION()
+	int32 AddPlayer(FString PlayerName);
 };

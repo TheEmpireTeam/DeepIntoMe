@@ -10,7 +10,6 @@ AMainCharacter::AMainCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	BaseRate = 45;
@@ -20,7 +19,6 @@ AMainCharacter::AMainCharacter()
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
 	Health = 100;
-
 	
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -38,13 +36,14 @@ void AMainCharacter::BeginPlay()
 	{
 		AddWeapon(NewWeapon);
 	}
+
 	StopRunning();
 }
 
 // Called every frame
-void AMainCharacter::Tick( float DeltaTime )
+void AMainCharacter::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
+	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -70,7 +69,6 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouching);
 	InputComponent->BindAction("Running", IE_Pressed, this, &AMainCharacter::StartRunning);
 	InputComponent->BindAction("Running", IE_Released, this, &AMainCharacter::StopRunning);
-
 }
 
 void AMainCharacter::LookUp(float Value)
@@ -208,7 +206,6 @@ void AMainCharacter::UseItem()
 
 void AMainCharacter::OnBeginOverlap(AActor* OtherActor)
 {
-	
 	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
 
 	if (UsableItem != NULL)
