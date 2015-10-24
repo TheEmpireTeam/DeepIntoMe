@@ -145,6 +145,11 @@ public:
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);
 
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	bool IsMagazineEmpty();
+
+	bool IsClipsEnd();
+
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
 	

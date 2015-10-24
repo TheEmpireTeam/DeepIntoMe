@@ -40,6 +40,24 @@ void AMainCharacter::BeginPlay()
 	StopRunning();
 }
 
+bool AMainCharacter::IsMagazineEmpty()
+{
+	if (Weapon != NULL) 
+	{
+		return (Weapon->GetCurrentBulletCount() == 0);
+	}
+	return true;
+}
+
+bool AMainCharacter::IsClipsEnd()
+{
+	if (Weapon != NULL)
+	{
+		return (Weapon->GetCurrentClipCount() == 0);
+	}
+	return true;
+}
+
 // Called every frame
 void AMainCharacter::Tick(float DeltaTime)
 {
@@ -101,7 +119,7 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	if (Weapon && !bReloading)
+	if (Weapon && !bReloading && !IsMagazineEmpty())
 	{
 		bFiring = true;
 		Weapon->SetFiringStatus(true);
@@ -119,7 +137,7 @@ void AMainCharacter::StopFire()
 
 void AMainCharacter::Reload()
 {
-	if (Weapon)
+	if (Weapon && !IsClipsEnd())
 	{
 		bReloading = true;
 		Weapon->Reload();

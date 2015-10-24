@@ -97,6 +97,16 @@ public:
 
 	void Fire();
 
+	USoundBase * GetRandomShotSound();
+
+	/** Weapon sounds */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	class USoundBase * FirstShotSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+		TArray<USoundBase*> ShotSounds;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	class USoundBase * DrawSound;
+
 	void Reload();
 
 	void SetSimulatePhysics(bool SimulatePhyics);
@@ -109,6 +119,7 @@ public:
 
 	bool GetFiringStatus();
 
+	UFUNCTION()
 	int32 GetCurrentBulletCount();
 
 	int32 GetCurrentClipCount();

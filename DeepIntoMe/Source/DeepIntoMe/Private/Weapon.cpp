@@ -17,7 +17,6 @@ AWeapon::AWeapon()
 	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
 	FireRate = 1;
-	CurrentBulletCount = 30;
 
 	//----Values only for debug---------
 	MaxOffset = 0.01;
@@ -31,6 +30,7 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrentBulletCount = ClipCapacity;
 	
 }
 
@@ -52,13 +52,33 @@ void AWeapon::Tick(float DeltaTime)
 				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CurrentBulletCount));
 			}
 			Fire();
+
+			USoundBase * ShotSound = /*(firstShoot) ? FirstShotSound : */GetRandomShotSound();
+
+			// Play fire sound 
+			if (ShotSound != NULL)
+				UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
+
 			CurrentBulletCount--;
 			Time = 0;
 		}
-		/*else
+		else
 		{
-			Reload();
-		}*/
+			//Reload();
+		}
+	}
+}
+
+
+USoundBase * AWeapon::GetRandomShotSound()
+{
+	int32 count = ShotSounds.Num();
+	if (count == 0)
+		return NULL;
+	else
+	{
+		int32 randomIndex = FMath::RandRange(0, count - 1);
+		return ShotSounds[randomIndex];
 	}
 }
 
