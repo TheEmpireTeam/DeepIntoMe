@@ -4,17 +4,7 @@
 #include "DeepIntoMeGameState.h"
 
 
-int32 ADeepIntoMeGameState::AddPlayer(FString PlayerName)
-{
-	FPlayerInfo NewPlayerInfo =
-	{
-		PlayerName
-	};
-
-	return ConnectedPlayers.Add(NewPlayerInfo);
-}
-
-void ADeepIntoMeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+/*void ADeepIntoMeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
+}*/

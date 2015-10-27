@@ -203,18 +203,19 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
 {
 	if (Weapon)
-	{
 		return Weapon->GetWeaponMesh();
-	}
 	else
-	{
 		return NULL;
-	}
 }
 
 AWeapon* AMainCharacter::GetWeapon()
 {
 	return Weapon;
+}
+
+float AMainCharacter::GetHealth()
+{
+	return Health;
 }
 
 void AMainCharacter::UseItem()
@@ -257,9 +258,11 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	if (Health < 0)
 	{
 		OnDying();
-
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red , TEXT("Player died!"));
+
+		//DetachFromControllerPendingDestroy();
 	}
+
 	return DamageAmount;
 }
 
@@ -283,4 +286,9 @@ void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
 	Weapon->SetSimulatePhysics(true);
 	Weapon->SetActorTransform(NewTransform);
 	Weapon = NULL;
+}
+
+void AMainCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

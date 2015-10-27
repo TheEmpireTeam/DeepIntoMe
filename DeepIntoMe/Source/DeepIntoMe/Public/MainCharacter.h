@@ -33,7 +33,7 @@ private:
 	UPROPERTY()
 	AWeapon* Weapon;
 
-	UPROPERTY(EditAnywhere, Category = Health)
+	UPROPERTY(Replicated, EditAnywhere, Category = Health)
 	float Health;
 
 	UPROPERTY(EditAnywhere, Category = Walking)
@@ -141,6 +141,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	AWeapon* GetWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = State)
+	float GetHealth();
 
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);
