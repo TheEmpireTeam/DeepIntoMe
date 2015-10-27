@@ -148,7 +148,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool IsMagazineEmpty();
 
-	bool IsClipsEnd();
+	bool CanReload();
 
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);

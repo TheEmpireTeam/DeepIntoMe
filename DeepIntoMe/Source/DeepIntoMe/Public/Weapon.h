@@ -68,13 +68,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = Firing)
 	int32 Clips;
 
-	//How many bullets in a clip we are using right now
-	UPROPERTY()
-	int32 CurrentBulletCount;
-
 	//How many shots you make while firing status is true
 	UPROPERTY()
 	int32 CurrentShotsCount;
+
+	//How many bullets in a clip we are using right now
+	UPROPERTY()
+	int32 CurrentBulletCount;
 
 	//How many bullets can one clip handle
 	UPROPERTY(EditAnywhere, Category = Firing)
@@ -123,6 +123,9 @@ public:
 	int32 GetCurrentBulletCount();
 
 	int32 GetCurrentClipCount();
+
+	UFUNCTION()
+	bool IsClipFull();
 
 	USkeletalMeshComponent* GetWeaponMesh();
 

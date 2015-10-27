@@ -40,13 +40,14 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 {
 	if (OtherActor != this)
 	{
-		if (GEngine != NULL)
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, OtherComp->GetName());
-
-		FPointDamageEvent PointDmg;
-		PointDmg.ShotDirection = GetActorRotation().Vector();
-		OtherActor->TakeDamage(Damage, PointDmg, Instigator->Controller, this);
-
+		if (Hit.GetActor() != NULL)
+		{
+			if (GEngine != NULL)
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, OtherComp->GetName());
+			FPointDamageEvent PointDmg;
+			PointDmg.ShotDirection = GetActorRotation().Vector();
+			OtherActor->TakeDamage(Damage, PointDmg, Instigator->Controller, this);
+		}
 		Destroy();
 	}
 }
