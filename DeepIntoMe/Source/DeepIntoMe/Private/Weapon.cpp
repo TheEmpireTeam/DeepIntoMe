@@ -181,6 +181,11 @@ int32 AWeapon::GetCurrentBulletCount()
 	return CurrentBulletCount;
 }
 
+bool AWeapon::IsClipFull()
+{
+	return ClipCapacity==CurrentBulletCount;
+}
+
 int32 AWeapon::GetCurrentClipCount()
 {
 	return Clips;

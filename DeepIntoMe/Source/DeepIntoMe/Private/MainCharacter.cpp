@@ -49,13 +49,16 @@ bool AMainCharacter::IsMagazineEmpty()
 	return true;
 }
 
-bool AMainCharacter::IsClipsEnd()
+bool AMainCharacter::CanReload()
 {
 	if (Weapon != NULL)
 	{
-		return (Weapon->GetCurrentClipCount() == 0);
+		if (Weapon->GetCurrentClipCount() != 0 && !Weapon->IsClipFull()) 
+		{
+			return true;
+		}
 	}
-	return true;
+	return false;
 }
 
 // Called every frame
@@ -135,9 +138,10 @@ void AMainCharacter::StopFire()
 	}
 }
 
+
 void AMainCharacter::Reload()
 {
-	if (Weapon && !IsClipsEnd())
+	if (Weapon && CanReload())
 	{
 		bReloading = true;
 		Weapon->Reload();
