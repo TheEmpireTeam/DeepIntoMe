@@ -18,4 +18,6 @@ class ADIMPlayerState : public APlayerState
 
 public:
 	virtual void BeginPlay() override;
+
+	void ResetScore();
 };
