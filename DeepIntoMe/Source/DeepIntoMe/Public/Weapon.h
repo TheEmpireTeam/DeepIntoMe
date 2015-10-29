@@ -74,7 +74,7 @@ private:
 
 	//How many bullets in a clip we are using right now
 	UPROPERTY()
-	int32 CurrentBulletCount;
+	int32 CartridgesLeftInClip;
 
 	//How many bullets can one clip handle
 	UPROPERTY(EditAnywhere, Category = Firing)
@@ -103,7 +103,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase * FirstShotSound;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-		TArray<USoundBase*> ShotSounds;
+	TArray<USoundBase*> ShotSounds;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase * DrawSound;
 
@@ -119,13 +119,17 @@ public:
 
 	bool GetFiringStatus();
 
-	UFUNCTION()
-	int32 GetCurrentBulletCount();
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
+	int32 GetCartridgesInClipCount();
 
-	int32 GetCurrentClipCount();
-
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
 	bool IsClipFull();
+
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
+	int32 GetClipSize();
+
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
+	int32 GetClipCount();
 
 	USkeletalMeshComponent* GetWeaponMesh();
 
@@ -137,11 +141,10 @@ public:
 
 public:
 
-	//IUsableInterface overrided methods
-	//-------------------------------------
+	/* IUsableInterface Implementation */
 	virtual void OnUsed(ACharacter* User) override;
 
 	virtual FString GetActionMessage() override;
-	//-------------------------------------
+	/* - - - - - - - - - - - - - - - - */
 	
 };

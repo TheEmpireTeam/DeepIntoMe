@@ -30,8 +30,8 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentBulletCount = ClipCapacity;
-	
+
+	CartridgesLeftInClip = ClipCapacity;
 }
 
 // Called every frame
@@ -45,26 +45,20 @@ void AWeapon::Tick(float DeltaTime)
 
 	if (bFiring && Time > (1/FireRate))
 	{
-		if (CurrentBulletCount)
+		if (CartridgesLeftInClip > 0)
 		{
 			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CurrentBulletCount));
-			}
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CartridgesLeftInClip));
+
 			Fire();
 
-			USoundBase * ShotSound = /*(firstShoot) ? FirstShotSound : */GetRandomShotSound();
-
-			// Play fire sound 
+			// Play fire sound
+			USoundBase * ShotSound = GetRandomShotSound();
 			if (ShotSound != NULL)
 				UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
 
-			CurrentBulletCount--;
+			CartridgesLeftInClip--;
 			Time = 0;
-		}
-		else
-		{
-			//Reload();
 		}
 	}
 }
@@ -98,17 +92,19 @@ FString AWeapon::GetActionMessage()
 
 void AWeapon::Fire()
 {
-	/**Warning: Experimental GOVNOKOD*/
-	FHitResult OutHit;
-	FVector Start; 
+	FVector Location; 
 	FRotator Rotation;
-	ParentCharacter->GetActorEyesViewPoint(Start, Rotation);
-	FVector End = Start + Rotation.Vector() * MAX_AIM_DISTANCE;
+	ParentCharacter->GetActorEyesViewPoint(Location, Rotation);
+
+	FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
+
 	FCollisionQueryParams Params;
 	FVector HitLocation;
 	CurrentShotsCount++;
-	float Offset = FMath::Clamp<float>(CurrentShotsCount*OffsetRate, 0, MaxOffset);
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params))
+
+	FHitResult OutHit;
+	float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
 	{
 		HitLocation = OutHit.Location;
 	}
@@ -116,15 +112,14 @@ void AWeapon::Fire()
 	{
 		HitLocation = End;
 	}
+
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
 	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1) + FMath::VRand() * Offset;
 
 	if (GEngine)
-	{
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::SanitizeFloat(Offset));
-	}
 
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 	Projectile->SetInstigator(ParentCharacter);
@@ -152,9 +147,9 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 
 void AWeapon::Reload()
 {
-	if (Clips)
+	if (Clips > 0)
 	{
-		CurrentBulletCount = ClipCapacity;
+		CartridgesLeftInClip = ClipCapacity;
 		Clips--;
 	}
 }
@@ -176,19 +171,24 @@ bool AWeapon::GetFiringStatus()
 	return bFiring;
 }
 
-int32 AWeapon::GetCurrentBulletCount()
+int32 AWeapon::GetCartridgesInClipCount()
 {
-	return CurrentBulletCount;
+	return CartridgesLeftInClip;
 }
 
 bool AWeapon::IsClipFull()
 {
-	return ClipCapacity==CurrentBulletCount;
+	return (CartridgesLeftInClip == ClipCapacity);
 }
 
-int32 AWeapon::GetCurrentClipCount()
+int32 AWeapon::GetClipCount()
 {
 	return Clips;
+}
+
+int32 AWeapon::GetClipSize()
+{
+	return ClipCapacity;
 }
 
 USkeletalMeshComponent* AWeapon::GetWeaponMesh()

@@ -17,5 +17,5 @@ class ADIMPlayerState : public APlayerState
 	int32 NumDeaths;
 
 public:
-	ADIMPlayerState();
+	virtual void BeginPlay() override;
 };

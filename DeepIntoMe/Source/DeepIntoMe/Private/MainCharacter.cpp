@@ -30,41 +30,29 @@ void AMainCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.bNoCollisionFail = true;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
-	if (NewWeapon != NULL)
-	{
+
+	if (NewWeapon)
 		AddWeapon(NewWeapon);
-	}
 
 	StopRunning();
 }
 
 bool AMainCharacter::IsMagazineEmpty()
 {
-	if (Weapon != NULL) 
-	{
-		return (Weapon->GetCurrentBulletCount() == 0);
-	}
+	if (Weapon) 
+		return (Weapon->GetCartridgesInClipCount() == 0);
+
 	return true;
 }
 
 bool AMainCharacter::CanReload()
 {
-	if (Weapon != NULL)
-	{
-		if (Weapon->GetCurrentClipCount() != 0 && !Weapon->IsClipFull()) 
-		{
-			return true;
-		}
-	}
-	return false;
-}
+	if (Weapon)
+		return (Weapon->GetClipCount() > 0 && !Weapon->IsClipFull());
 
-// Called every frame
-void AMainCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	return false;
 }
 
 // Called to bind functionality to input
@@ -287,6 +275,14 @@ void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
 	Weapon->SetActorTransform(NewTransform);
 	Weapon = NULL;
 }
+
+/*int32 AMainCharacter::GetCartridgesLeftInClipCount()
+{
+	if (Weapon)
+		return Weapon->GetCartridgesInClipCount();
+
+	return 0;
+}*/
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {

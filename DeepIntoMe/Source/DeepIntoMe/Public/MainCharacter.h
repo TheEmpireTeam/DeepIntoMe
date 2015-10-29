@@ -79,9 +79,6 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
@@ -151,7 +148,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool IsMagazineEmpty();
 
+	UFUNCTION()
 	bool CanReload();
+
+	/*UFUNCTION(BlueprintCallable, Category = Weapon)
+	int32 GetCartridgesLeftInClipCount();*/
 
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
