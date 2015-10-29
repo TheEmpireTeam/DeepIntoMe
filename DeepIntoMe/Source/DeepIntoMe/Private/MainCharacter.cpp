@@ -245,7 +245,7 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	Health -= DamageAmount;
 	if (Health < 0)
 	{
-		OnDying();
+		//OnDying();
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red , TEXT("Player died!"));
 
 		//DetachFromControllerPendingDestroy();
@@ -275,14 +275,6 @@ void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
 	Weapon->SetActorTransform(NewTransform);
 	Weapon = NULL;
 }
-
-/*int32 AMainCharacter::GetCartridgesLeftInClipCount()
-{
-	if (Weapon)
-		return Weapon->GetCartridgesInClipCount();
-
-	return 0;
-}*/
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {

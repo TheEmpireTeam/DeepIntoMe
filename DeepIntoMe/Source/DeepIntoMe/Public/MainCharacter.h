@@ -151,9 +151,6 @@ public:
 	UFUNCTION()
 	bool CanReload();
 
-	/*UFUNCTION(BlueprintCallable, Category = Weapon)
-	int32 GetCartridgesLeftInClipCount();*/
-
 	UFUNCTION()
 	void OnEndOverlap(AActor* OtherActor);
 	

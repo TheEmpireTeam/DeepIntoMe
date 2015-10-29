@@ -39,17 +39,13 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
 	static float Time = 0;
 	Time += DeltaTime;
 
-	if (bFiring && Time > (1/FireRate))
+	if (bFiring && Time > (1 / FireRate))
 	{
 		if (CartridgesLeftInClip > 0)
 		{
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CartridgesLeftInClip));
-
 			Fire();
 
 			// Play fire sound
@@ -104,22 +100,16 @@ void AWeapon::Fire()
 
 	FHitResult OutHit;
 	float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
+
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
-	{
 		HitLocation = OutHit.Location;
-	}
 	else
-	{
 		HitLocation = End;
-	}
 
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.bNoCollisionFail = true;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
 	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1) + FMath::VRand() * Offset;
-
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::SanitizeFloat(Offset));
 
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 	Projectile->SetInstigator(ParentCharacter);
