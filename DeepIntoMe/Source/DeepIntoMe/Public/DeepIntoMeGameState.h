@@ -4,19 +4,8 @@
 
 #include "GameFramework/GameState.h"
 #include "DIMPlayerState.h"
+#include "DIMNetworkManager.h"
 #include "DeepIntoMeGameState.generated.h"
-
-USTRUCT()
-struct FPlayerInfo
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	FString Nickname;
-
-	UPROPERTY()
-	float Health;
-};
 
 UCLASS()
 class ADeepIntoMeGameState : public AGameState
@@ -24,8 +13,14 @@ class ADeepIntoMeGameState : public AGameState
 	GENERATED_BODY()
 
 	UPROPERTY(Replicated)
-	TArray<FPlayerInfo> PlayersInfo;
+	UDIMNetworkManager* NetworkManager;
 
 	UFUNCTION()
-	FPlayerInfo GetPlayerInfo(int32 PlayerIndex);
+	void CreateNetworkManager();
+
+public:
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Game Statistics")
+	UDIMNetworkManager* GetNetworkManager();
 };

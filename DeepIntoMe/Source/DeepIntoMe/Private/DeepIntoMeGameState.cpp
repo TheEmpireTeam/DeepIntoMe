@@ -4,15 +4,29 @@
 #include "DeepIntoMeGameState.h"
 
 
-void ADeepIntoMeGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void ADeepIntoMeGameState::BeginPlay()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	Super::BeginPlay();
+
+	// Create network manager on server
+	if (Role == ROLE_Authority)
+		CreateNetworkManager();
 }
 
-FPlayerInfo ADeepIntoMeGameState::GetPlayerInfo(int32 PlayerIndex)
+void ADeepIntoMeGameState::CreateNetworkManager()
 {
-	if (PlayersInfo.Num() > PlayerIndex)
-		return PlayersInfo[PlayerIndex];
-	else
-		return FPlayerInfo();
+	NetworkManager = NewObject<UDIMNetworkManager>();
+
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Network Manager Created!"));
+}
+
+UDIMNetworkManager* ADeepIntoMeGameState::GetNetworkManager()
+{
+	return NetworkManager;
+}
+
+void ADeepIntoMeGameState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
