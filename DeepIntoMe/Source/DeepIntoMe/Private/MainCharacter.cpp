@@ -2,12 +2,16 @@
 
 #include "DeepIntoMe.h"
 #include "MainCharacter.h"
+#include "DIMPlayerState.h"
 
 
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to replicate
+	bReplicates = true;
+
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -242,21 +246,60 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	Health -= DamageAmount;
-	if (Health < 0)
+	if (Role < ROLE_Authority)
 	{
-		//OnDying();
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red , TEXT("Player died!"));
-
-		//DetachFromControllerPendingDestroy();
+		ServerTakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+		return DamageAmount;
 	}
+	else
+	{
+		Health -= DamageAmount;
 
-	return DamageAmount;
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage called!"));
+		if (Health < 0)
+		{
+			OnDying();
+		}
+
+		return DamageAmount;
+	}
+}
+
+void AMainCharacter::ServerTakeDamage_Implementation(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+bool AMainCharacter::ServerTakeDamage_Validate(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	return true;
+}
+
+void AMainCharacter::ManualTakeDamage(float DamageAmount)
+{
+	if (Role < ROLE_Authority)
+		ServerManualTakeDamage(DamageAmount);
+	else
+	{
+		Health -= DamageAmount;
+	}
+}
+
+void AMainCharacter::ServerManualTakeDamage_Implementation(float DamageAmount)
+{
+	ManualTakeDamage(DamageAmount);
+}
+
+bool AMainCharacter::ServerManualTakeDamage_Validate(float DamageAmount)
+{
+	return true;
 }
 
 void AMainCharacter::OnDying()
 {
-	DetachWeaponFromCharacter(Weapon->GetTransform());
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Player died!"));
+
+	//DetachWeaponFromCharacter(Weapon->GetTransform());
 }
 
 void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
@@ -276,7 +319,10 @@ void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
 	Weapon = NULL;
 }
 
-void AMainCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to every client, no special condition required
+	DOREPLIFETIME(AMainCharacter, Health);
 }

@@ -12,7 +12,7 @@ UDIMNetworkManager::UDIMNetworkManager()
 int32 UDIMNetworkManager::RegisterPlayer(ADIMPlayerState* PlayerState, FString PlayerName)
 {
 	FPlayerNetworkInfo PlayerInfo;
-	//PlayerInfo.NetworkId = LastPlayerIndex++;
+	PlayerInfo.NetworkId = LastPlayerIndex++;
 	PlayerInfo.Nickname = PlayerName;
 	PlayerInfo.Health = 100.0f;
 

@@ -4,27 +4,27 @@
 #include "DIMPlayerState.h"
 #include "DeepIntoMeGameState.h"
 #include "DIMGameInstance.h"
+#include "DeepIntoMeHUD.h"
 
 void ADIMPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	// Force server to give player a name
+	if (Role == ROLE_Authority)
+	{
+		const FString Suffix = FString::FromInt(FMath::RandRange(0, 999));
+		SetPlayerName(FPlatformProcess::ComputerName() + Suffix);
+	}
 
 	ResetScore();
-
-	const FString Suffix = FString::FromInt(FMath::RandRange(0, 999));
-	PlayerName = FPlatformProcess::ComputerName() + Suffix;
-
-	if (Role == ROLE_Authority)
-		RegisterInNetworkManager();
+	//RegisterInNetworkManager();
 }
 
 void ADIMPlayerState::ResetScore()
 {
 	NumKills = 0;
 	NumDeaths = 0;
-
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerName + TEXT(": Score has been reset!"));
 }
 
 void ADIMPlayerState::RegisterInNetworkManager_Implementation()
@@ -41,7 +41,21 @@ void ADIMPlayerState::RegisterInNetworkManager_Implementation()
 	}
 }
 
+bool ADIMPlayerState::RegisterInNetworkManager_Validate()
+{
+	return true;
+}
+
+void ADIMPlayerState::OnRep_MultiplayerId(int32 PreviousId)
+{
+	int32 some_int = PreviousId;
+}
+
 void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADIMPlayerState, MultiplayerId);
+	DOREPLIFETIME(ADIMPlayerState, NumKills);
+	DOREPLIFETIME(ADIMPlayerState, NumDeaths);
 }

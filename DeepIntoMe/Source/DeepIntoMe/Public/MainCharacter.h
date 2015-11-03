@@ -129,6 +129,15 @@ public:
 	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerTakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+
+	UFUNCTION()
+	void ManualTakeDamage(float DamageAmount);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerManualTakeDamage(float DamageAmount);
+
 	//Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AddWeapon(AWeapon* NewWeapon);
