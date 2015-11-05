@@ -7,6 +7,8 @@
 // Sets default values
 AWeapon::AWeapon()
 {
+	//bReplicates = true;
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -30,8 +32,8 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentBulletCount = ClipCapacity;
-	
+
+	CartridgesLeftInClip = ClipCapacity;
 }
 
 // Called every frame
@@ -39,36 +41,53 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
 	static float Time = 0;
 	Time += DeltaTime;
+	
+	/*static int32 counter = 0;
+	counter += DeltaTime;
+	if (counter % 5000 == 0)
+		CartridgesLeftInClip--;*/
 
-	if (bFiring && Time > (1/FireRate))
+	if (bFiring && Time > (1 / FireRate))
 	{
-		if (CurrentBulletCount)
+		if (CartridgesLeftInClip > 0)
 		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::FromInt(CurrentBulletCount));
-			}
 			Fire();
 
-			USoundBase * ShotSound = /*(firstShoot) ? FirstShotSound : */GetRandomShotSound();
-
-			// Play fire sound 
-			if (ShotSound != NULL)
-				UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
-
-			CurrentBulletCount--;
+			PlayShootSound();
+		
+			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, L"Shoot");
 			Time = 0;
 		}
-		else
+		/*else
 		{
-			//Reload();
-		}
+			bFiring = false;
+		}*/
 	}
 }
 
+void AWeapon::PlayShootSound()
+{
+	/*if (Role < ROLE_Authority)
+		ServerPlayShootSound();
+	else
+	{*/
+		USoundBase * ShotSound = GetRandomShotSound();
+		if (ShotSound != NULL)
+			UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
+	//}
+}
+
+void AWeapon::ServerPlayShootSound_Implementation()
+{
+	PlayShootSound();
+}
+
+bool AWeapon::ServerPlayShootSound_Validate()
+{
+	return true;
+}
 
 USoundBase * AWeapon::GetRandomShotSound()
 {
@@ -85,10 +104,8 @@ USoundBase * AWeapon::GetRandomShotSound()
 void AWeapon::OnUsed(ACharacter* User)
 {
 	AMainCharacter* MainUser = Cast<AMainCharacter>(User);
-	if (MainUser != NULL)
-	{
+	if (MainUser)
 		MainUser->AddWeapon(this);
-	}
 }
 
 FString AWeapon::GetActionMessage()
@@ -98,37 +115,49 @@ FString AWeapon::GetActionMessage()
 
 void AWeapon::Fire()
 {
-	/**Warning: Experimental GOVNOKOD*/
-	FHitResult OutHit;
-	FVector Start; 
-	FRotator Rotation;
-	ParentCharacter->GetActorEyesViewPoint(Start, Rotation);
-	FVector End = Start + Rotation.Vector() * MAX_AIM_DISTANCE;
-	FCollisionQueryParams Params;
-	FVector HitLocation;
-	CurrentShotsCount++;
-	float Offset = FMath::Clamp<float>(CurrentShotsCount*OffsetRate, 0, MaxOffset);
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility, Params))
-	{
-		HitLocation = OutHit.Location;
-	}
+	if (Role < ROLE_Authority)
+		ServerFire();
 	else
 	{
-		HitLocation = End;
-	}
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.bNoCollisionFail = true;
-	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1) + FMath::VRand() * Offset;
+		FVector Location; 
+		FRotator Rotation;
+		ParentCharacter->GetActorEyesViewPoint(Location, Rotation);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::SanitizeFloat(Offset));
-	}
+		FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
 
-	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
-	Projectile->SetInstigator(ParentCharacter);
-	Projectile->SetDamage(Damage);
+		FCollisionQueryParams Params;
+		FVector HitLocation;
+		CurrentShotsCount++;
+
+		FHitResult OutHit;
+		float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
+
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
+			HitLocation = OutHit.Location;
+		else
+			HitLocation = End;
+
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
+		FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
+
+		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
+		Projectile->SetInstigator(ParentCharacter);
+		Projectile->SetDamage(Damage);
+		
+		CartridgesLeftInClip--;
+	}
+}
+
+void AWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool AWeapon::ServerFire_Validate()
+{
+	return true;
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
@@ -152,11 +181,26 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 
 void AWeapon::Reload()
 {
-	if (Clips)
-	{
-		CurrentBulletCount = ClipCapacity;
-		Clips--;
-	}
+	/*if (Role < ROLE_Authority)
+		ServerReload();
+	else
+	{*/
+		if (Clips > 0)
+		{
+			CartridgesLeftInClip = ClipCapacity;
+			Clips--;
+		}
+	//}
+}
+
+void AWeapon::ServerReload_Implementation()
+{
+	Reload();
+}
+
+bool AWeapon::ServerReload_Validate()
+{
+	return true;
 }
 
 bool AWeapon::GetSimulatePhysics()
@@ -166,9 +210,24 @@ bool AWeapon::GetSimulatePhysics()
 
 void AWeapon::SetFiringStatus(bool Firing)
 {
-	bFiring = Firing;
-	if (bFiring)
-		CurrentShotsCount = 0;
+	/*if (Role < ROLE_Authority)
+		ServerSetFiringStatus(Firing);
+	else
+	{*/
+		bFiring = Firing;
+		if (bFiring)
+			CurrentShotsCount = 0;
+	//}
+}
+
+void AWeapon::ServerSetFiringStatus_Implementation(bool Firing)
+{
+	SetFiringStatus(Firing);
+}
+
+bool AWeapon::ServerSetFiringStatus_Validate(bool Firing)
+{
+	return true;
 }
 
 bool AWeapon::GetFiringStatus()
@@ -176,19 +235,24 @@ bool AWeapon::GetFiringStatus()
 	return bFiring;
 }
 
-int32 AWeapon::GetCurrentBulletCount()
+int32 AWeapon::GetCartridgesInClipCount()
 {
-	return CurrentBulletCount;
+	return CartridgesLeftInClip;
 }
 
 bool AWeapon::IsClipFull()
 {
-	return ClipCapacity==CurrentBulletCount;
+	return (CartridgesLeftInClip == ClipCapacity);
 }
 
-int32 AWeapon::GetCurrentClipCount()
+int32 AWeapon::GetClipCount()
 {
 	return Clips;
+}
+
+int32 AWeapon::GetClipSize()
+{
+	return ClipCapacity;
 }
 
 USkeletalMeshComponent* AWeapon::GetWeaponMesh()
@@ -211,3 +275,13 @@ void AWeapon::OnPickUpEndOverlap(AActor* OtherActor, class UPrimitiveComponent* 
 {
 
 }
+
+/*void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeapon, CartridgesLeftInClip);
+	//DOREPLIFETIME(AWeapon, CurrentShotsCount);
+	//DOREPLIFETIME(AWeapon, Clips);
+	//DOREPLIFETIME(AWeapon, bFiring);
+}*/

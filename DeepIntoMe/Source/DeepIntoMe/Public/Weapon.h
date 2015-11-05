@@ -7,11 +7,6 @@
 #include "Projectile.h"
 #include "Weapon.generated.h"
 
-//Warning: GOVNOKODIK 
-//-------------------------------------
-//Forward declaration of CPPMainCharacter
-//to use AddWeapon() method
-
 class AMainCharacter;
 
 UCLASS()
@@ -26,14 +21,14 @@ private:
 	AMainCharacter* ParentCharacter;
 
 	//Message that will appear on the screen
-	UPROPERTY(EditAnywhere, Category = ActionSettings)
+	UPROPERTY(EditDefaultsOnly, Category = ActionSettings)
 	FString ActionMessage;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	TSubclassOf<AProjectile> ProjectileType;
 
 	//Name of a socket for Firing
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	FName FireSocketName;
 
 	//Weapon's collision for pick up
@@ -45,15 +40,15 @@ private:
 	USkeletalMeshComponent* Mesh;
 
 	//Amount of bullets per second
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float FireRate;
 
 	//Maximum offset for firing 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float MaxOffset;
 
 	//offset rate for firing 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float OffsetRate;
 
 	//Does weapon simulate physics
@@ -65,23 +60,23 @@ private:
 	bool bFiring;
 
 	//Amount of clips
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditAnywhere, Category = "Firing")
 	int32 Clips;
 
 	//How many shots you make while firing status is true
 	UPROPERTY()
 	int32 CurrentShotsCount;
 
-	//How many bullets in a clip we are using right now
+	// How many bullets in a clip we are using right now
 	UPROPERTY()
-	int32 CurrentBulletCount;
+	int32 CartridgesLeftInClip;
 
-	//How many bullets can one clip handle
-	UPROPERTY(EditAnywhere, Category = Firing)
+	// How many bullets can one clip handle
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	int32 ClipCapacity;
 
-	//Amount of damage caused by this weapon
-	UPROPERTY(EditAnywhere)
+	// Amount of damage caused by this weapon
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float Damage;
 
 public:
@@ -93,21 +88,34 @@ public:
 	virtual void BeginPlay() override;
 	
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	void Fire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+	
+	void PlayShootSound();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerPlayShootSound();
 
 	USoundBase * GetRandomShotSound();
 
-	/** Weapon sounds */
+	/* Weapon sounds */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase * FirstShotSound;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-		TArray<USoundBase*> ShotSounds;
+	TArray<USoundBase*> ShotSounds;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase * DrawSound;
 
 	void Reload();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerReload();
 
 	void SetSimulatePhysics(bool SimulatePhyics);
 
@@ -116,16 +124,23 @@ public:
 	void SetParentCharacter(AMainCharacter* NewParentCharacter);
 
 	void SetFiringStatus(bool Firing);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetFiringStatus(bool Firing);
 
 	bool GetFiringStatus();
 
-	UFUNCTION()
-	int32 GetCurrentBulletCount();
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
+	int32 GetCartridgesInClipCount();
 
-	int32 GetCurrentClipCount();
-
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
 	bool IsClipFull();
+
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
+	int32 GetClipSize();
+
+	UFUNCTION(BlueprintCallable, Category = "Cartridge State")
+	int32 GetClipCount();
 
 	USkeletalMeshComponent* GetWeaponMesh();
 
@@ -137,11 +152,10 @@ public:
 
 public:
 
-	//IUsableInterface overrided methods
-	//-------------------------------------
+	/* IUsableInterface Implementation */
 	virtual void OnUsed(ACharacter* User) override;
 
 	virtual FString GetActionMessage() override;
-	//-------------------------------------
+	/* - - - - - - - - - - - - - - - - */
 	
 };

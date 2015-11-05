@@ -2,12 +2,16 @@
 
 #include "DeepIntoMe.h"
 #include "MainCharacter.h"
+#include "DIMPlayerState.h"
 
 
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to replicate
+	bReplicates = true;
+
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -30,41 +34,29 @@ void AMainCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.bNoCollisionFail = true;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
-	if (NewWeapon != NULL)
-	{
+
+	if (NewWeapon)
 		AddWeapon(NewWeapon);
-	}
 
 	StopRunning();
 }
 
 bool AMainCharacter::IsMagazineEmpty()
 {
-	if (Weapon != NULL) 
-	{
-		return (Weapon->GetCurrentBulletCount() == 0);
-	}
+	if (Weapon) 
+		return (Weapon->GetCartridgesInClipCount() == 0);
+
 	return true;
 }
 
 bool AMainCharacter::CanReload()
 {
-	if (Weapon != NULL)
-	{
-		if (Weapon->GetCurrentClipCount() != 0 && !Weapon->IsClipFull()) 
-		{
-			return true;
-		}
-	}
-	return false;
-}
+	if (Weapon)
+		return (Weapon->GetClipCount() > 0 && !Weapon->IsClipFull());
 
-// Called every frame
-void AMainCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	return false;
 }
 
 // Called to bind functionality to input
@@ -122,30 +114,75 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	if (Weapon && !bReloading && !IsMagazineEmpty())
+	if (Role < ROLE_Authority)
+		ServerStartFire();
+	else
 	{
-		bFiring = true;
-		Weapon->SetFiringStatus(true);
+		if (Weapon && !bReloading && !IsMagazineEmpty())
+		{
+			bFiring = true;
+			Weapon->SetFiringStatus(true);
+		}
 	}
+}
+
+void AMainCharacter::ServerStartFire_Implementation()
+{
+	StartFire();
+}
+
+bool AMainCharacter::ServerStartFire_Validate()
+{
+	return true;
 }
 
 void AMainCharacter::StopFire()
 {
-	if (Weapon)
+	if (Role < ROLE_Authority)
+		ServerStopFire();
+	else
 	{
-		bFiring = false;
-		Weapon->SetFiringStatus(false);
+		if (Weapon)
+		{
+			bFiring = false;
+			Weapon->SetFiringStatus(false);
+		}
 	}
+}
+
+void AMainCharacter::ServerStopFire_Implementation()
+{
+	StopFire();
+}
+
+bool AMainCharacter::ServerStopFire_Validate()
+{
+	return true;
 }
 
 
 void AMainCharacter::Reload()
 {
-	if (Weapon && CanReload())
+	if (Role < ROLE_Authority)
+		ServerReload();
+	else
 	{
-		bReloading = true;
-		Weapon->Reload();
+		if (Weapon && CanReload())
+		{
+			bReloading = true;
+			Weapon->Reload();
+		}
 	}
+}
+
+void AMainCharacter::ServerReload_Implementation()
+{
+	Reload();
+}
+
+bool AMainCharacter::ServerReload_Validate()
+{
+	return true;
 }
 
 void AMainCharacter::StartAiming()
@@ -193,11 +230,11 @@ void AMainCharacter::SetRunningStatus(bool Running)
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
-	if (Weapon != NULL)
-	{
-		DetachWeaponFromCharacter(NewWeapon->GetTransform());
-	}
-	AttachWeaponToCharacter(NewWeapon);
+	if (Weapon)
+		DetachWeaponFromCharacter(Weapon->GetTransform());
+	
+	if (NewWeapon)
+		AttachWeaponToCharacter(NewWeapon);
 }
 
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
@@ -255,12 +292,11 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	Health -= DamageAmount;
+
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage called!"));
 	if (Health < 0)
 	{
 		OnDying();
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red , TEXT("Player died!"));
-
-		//DetachFromControllerPendingDestroy();
 	}
 
 	return DamageAmount;
@@ -268,7 +304,9 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void AMainCharacter::OnDying()
 {
-	DetachWeaponFromCharacter(Weapon->GetTransform());
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Player died!"));
+
+	//DetachWeaponFromCharacter(Weapon->GetTransform());
 }
 
 void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
@@ -288,7 +326,16 @@ void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
 	Weapon = NULL;
 }
 
-void AMainCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMainCharacter, Health);
+	
+	// Firing & movement properties
+	DOREPLIFETIME(AMainCharacter, bFiring);
+	DOREPLIFETIME(AMainCharacter, bReloading);
+	DOREPLIFETIME(AMainCharacter, bAiming);
+	DOREPLIFETIME(AMainCharacter, bCrouching);
+	DOREPLIFETIME(AMainCharacter, bRunning);
 }

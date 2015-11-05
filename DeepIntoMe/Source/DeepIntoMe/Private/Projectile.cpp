@@ -2,13 +2,13 @@
 
 #include "DeepIntoMe.h"
 #include "Projectile.h"
+#include "MainCharacter.h"
 
 
 // Sets default values
 AProjectile::AProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 	
 	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	Collision->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
@@ -21,19 +21,8 @@ AProjectile::AProjectile()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+
 	Damage = 0;
-}
-
-// Called when the game starts or when spawned
-void AProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void AProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -44,10 +33,14 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 		{
 			if (GEngine != NULL)
 				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, OtherComp->GetName());
+
 			FPointDamageEvent PointDmg;
 			PointDmg.ShotDirection = GetActorRotation().Vector();
-			OtherActor->TakeDamage(Damage, PointDmg, Instigator->Controller, this);
+
+			if (Role == ROLE_Authority && Instigator)
+				OtherActor->TakeDamage(Damage, PointDmg, Instigator->Controller, this);
 		}
+
 		Destroy();
 	}
 }

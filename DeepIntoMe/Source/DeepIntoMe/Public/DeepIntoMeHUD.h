@@ -25,6 +25,10 @@ public:
 	EHUDState GetCurrentState();
 
 	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")
+	void AddConsoleMessage(FString& Message);
+
+	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUDEvents")
 	void OnStateChanged(EHUDState NewState);
 };

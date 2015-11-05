@@ -51,19 +51,19 @@ private:
 public:
 
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bFiring;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bReloading;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bAiming;
 
-	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
 	bool bCrouching;
 
-	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
 	bool bRunning;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
@@ -79,9 +79,6 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
@@ -100,12 +97,21 @@ public:
 
 	//Start firing process
 	void StartFire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStartFire();
 
 	//Stops firing process
 	void StopFire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStopFire();
 
 	//Start reloading
 	void Reload();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerReload();
 
 	void StartAiming();
 
@@ -151,6 +157,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool IsMagazineEmpty();
 
+	UFUNCTION()
 	bool CanReload();
 
 	UFUNCTION()

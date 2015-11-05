@@ -16,6 +16,17 @@ class ADIMPlayerState : public APlayerState
 	UPROPERTY(Replicated, VisibleAnywhere)
 	int32 NumDeaths;
 
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_MultiplayerId)
+	int32 MultiplayerId;
+
+	UFUNCTION()
+	void OnRep_MultiplayerId(int32 PreviousId);
+
 public:
-	ADIMPlayerState();
+	virtual void BeginPlay() override;
+
+	void ResetScore();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void RegisterInNetworkManager();
 };
