@@ -291,53 +291,15 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	/*if (Role < ROLE_Authority)
+	Health -= DamageAmount;
+
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage called!"));
+	if (Health < 0)
 	{
-		ServerTakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-		return DamageAmount;
+		OnDying();
 	}
-	else
-	{*/
-		Health -= DamageAmount;
 
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage called!"));
-		if (Health < 0)
-		{
-			OnDying();
-		}
-
-		return DamageAmount;
-	//}
-}
-
-/*void AMainCharacter::ServerTakeDamage_Implementation(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
-{
-	TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-}
-
-bool AMainCharacter::ServerTakeDamage_Validate(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
-{
-	return true;
-}*/
-
-void AMainCharacter::ManualTakeDamage(float DamageAmount)
-{
-	if (Role < ROLE_Authority)
-		ServerManualTakeDamage(DamageAmount);
-	else
-	{
-		Health -= DamageAmount;
-	}
-}
-
-void AMainCharacter::ServerManualTakeDamage_Implementation(float DamageAmount)
-{
-	ManualTakeDamage(DamageAmount);
-}
-
-bool AMainCharacter::ServerManualTakeDamage_Validate(float DamageAmount)
-{
-	return true;
+	return DamageAmount;
 }
 
 void AMainCharacter::OnDying()

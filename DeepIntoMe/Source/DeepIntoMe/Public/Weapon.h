@@ -56,19 +56,19 @@ private:
 	bool bSimulatePhysics;
 
 	//Is weapon firing right now
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	bool bFiring;
 
 	//Amount of clips
-	UPROPERTY(Replicated, EditAnywhere, Category = "Firing")
+	UPROPERTY(EditAnywhere, Category = "Firing")
 	int32 Clips;
 
 	//How many shots you make while firing status is true
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	int32 CurrentShotsCount;
 
 	// How many bullets in a clip we are using right now
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	int32 CartridgesLeftInClip;
 
 	// How many bullets can one clip handle
@@ -91,6 +91,14 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	void Fire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+	
+	void PlayShootSound();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerPlayShootSound();
 
 	USoundBase * GetRandomShotSound();
 
@@ -105,6 +113,9 @@ public:
 	class USoundBase * DrawSound;
 
 	void Reload();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerReload();
 
 	void SetSimulatePhysics(bool SimulatePhyics);
 

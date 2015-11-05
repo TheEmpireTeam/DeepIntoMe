@@ -37,16 +37,8 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 			FPointDamageEvent PointDmg;
 			PointDmg.ShotDirection = GetActorRotation().Vector();
 
-			if (Instigator)
-			{
+			if (Role == ROLE_Authority && Instigator)
 				OtherActor->TakeDamage(Damage, PointDmg, Instigator->Controller, this);
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("NOT NULL"));
-			}	
-			else
-			{
-				OtherActor->TakeDamage(Damage, PointDmg, NULL, this);
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("NULL"));
-			}
 		}
 
 		Destroy();
