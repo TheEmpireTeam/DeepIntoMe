@@ -51,19 +51,19 @@ private:
 public:
 
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bFiring;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bReloading;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bAiming;
 
-	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
 	bool bCrouching;
 
-	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
 	bool bRunning;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
@@ -97,12 +97,21 @@ public:
 
 	//Start firing process
 	void StartFire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStartFire();
 
 	//Stops firing process
 	void StopFire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStopFire();
 
 	//Start reloading
 	void Reload();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerReload();
 
 	void StartAiming();
 
@@ -129,8 +138,8 @@ public:
 	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerTakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void ServerTakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
 
 	UFUNCTION()
 	void ManualTakeDamage(float DamageAmount);

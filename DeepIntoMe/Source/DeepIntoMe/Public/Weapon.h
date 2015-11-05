@@ -7,11 +7,6 @@
 #include "Projectile.h"
 #include "Weapon.generated.h"
 
-//Warning: GOVNOKODIK 
-//-------------------------------------
-//Forward declaration of CPPMainCharacter
-//to use AddWeapon() method
-
 class AMainCharacter;
 
 UCLASS()
@@ -26,14 +21,14 @@ private:
 	AMainCharacter* ParentCharacter;
 
 	//Message that will appear on the screen
-	UPROPERTY(EditAnywhere, Category = ActionSettings)
+	UPROPERTY(EditDefaultsOnly, Category = ActionSettings)
 	FString ActionMessage;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	TSubclassOf<AProjectile> ProjectileType;
 
 	//Name of a socket for Firing
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	FName FireSocketName;
 
 	//Weapon's collision for pick up
@@ -45,15 +40,15 @@ private:
 	USkeletalMeshComponent* Mesh;
 
 	//Amount of bullets per second
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float FireRate;
 
 	//Maximum offset for firing 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float MaxOffset;
 
 	//offset rate for firing 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float OffsetRate;
 
 	//Does weapon simulate physics
@@ -61,27 +56,27 @@ private:
 	bool bSimulatePhysics;
 
 	//Is weapon firing right now
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	bool bFiring;
 
 	//Amount of clips
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(Replicated, EditAnywhere, Category = "Firing")
 	int32 Clips;
 
 	//How many shots you make while firing status is true
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	int32 CurrentShotsCount;
 
-	//How many bullets in a clip we are using right now
-	UPROPERTY()
+	// How many bullets in a clip we are using right now
+	UPROPERTY(Replicated)
 	int32 CartridgesLeftInClip;
 
-	//How many bullets can one clip handle
-	UPROPERTY(EditAnywhere, Category = Firing)
+	// How many bullets can one clip handle
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	int32 ClipCapacity;
 
-	//Amount of damage caused by this weapon
-	UPROPERTY(EditAnywhere)
+	// Amount of damage caused by this weapon
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float Damage;
 
 public:
@@ -93,17 +88,19 @@ public:
 	virtual void BeginPlay() override;
 	
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	void Fire();
 
 	USoundBase * GetRandomShotSound();
 
-	/** Weapon sounds */
+	/* Weapon sounds */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase * FirstShotSound;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	TArray<USoundBase*> ShotSounds;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase * DrawSound;
 
@@ -116,6 +113,9 @@ public:
 	void SetParentCharacter(AMainCharacter* NewParentCharacter);
 
 	void SetFiringStatus(bool Firing);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetFiringStatus(bool Firing);
 
 	bool GetFiringStatus();
 

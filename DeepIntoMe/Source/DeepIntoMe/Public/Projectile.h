@@ -24,7 +24,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ProjectileMovement, meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovement;
 
-	//Amount of damage caused by this projectile
+	// Amount of damage caused by this projectile
+	UPROPERTY(EditDefaultsOnly, Category = "Damage Properties")
 	float Damage;
 
 	ACharacter* Instigator;
@@ -39,7 +40,4 @@ public:
 
 	UFUNCTION()
 	void OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void ServerOnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

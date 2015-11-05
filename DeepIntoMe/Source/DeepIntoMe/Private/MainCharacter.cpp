@@ -114,30 +114,75 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	if (Weapon && !bReloading && !IsMagazineEmpty())
+	if (Role < ROLE_Authority)
+		ServerStartFire();
+	else
 	{
-		bFiring = true;
-		Weapon->SetFiringStatus(true);
+		if (Weapon && !bReloading && !IsMagazineEmpty())
+		{
+			bFiring = true;
+			Weapon->SetFiringStatus(true);
+		}
 	}
+}
+
+void AMainCharacter::ServerStartFire_Implementation()
+{
+	StartFire();
+}
+
+bool AMainCharacter::ServerStartFire_Validate()
+{
+	return true;
 }
 
 void AMainCharacter::StopFire()
 {
-	if (Weapon)
+	if (Role < ROLE_Authority)
+		ServerStopFire();
+	else
 	{
-		bFiring = false;
-		Weapon->SetFiringStatus(false);
+		if (Weapon)
+		{
+			bFiring = false;
+			Weapon->SetFiringStatus(false);
+		}
 	}
+}
+
+void AMainCharacter::ServerStopFire_Implementation()
+{
+	StopFire();
+}
+
+bool AMainCharacter::ServerStopFire_Validate()
+{
+	return true;
 }
 
 
 void AMainCharacter::Reload()
 {
-	if (Weapon && CanReload())
+	if (Role < ROLE_Authority)
+		ServerReload();
+	else
 	{
-		bReloading = true;
-		Weapon->Reload();
+		if (Weapon && CanReload())
+		{
+			bReloading = true;
+			Weapon->Reload();
+		}
 	}
+}
+
+void AMainCharacter::ServerReload_Implementation()
+{
+	Reload();
+}
+
+bool AMainCharacter::ServerReload_Validate()
+{
+	return true;
 }
 
 void AMainCharacter::StartAiming()
@@ -185,11 +230,11 @@ void AMainCharacter::SetRunningStatus(bool Running)
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
-	if (Weapon != NULL)
-	{
-		DetachWeaponFromCharacter(NewWeapon->GetTransform());
-	}
-	AttachWeaponToCharacter(NewWeapon);
+	if (Weapon)
+		DetachWeaponFromCharacter(Weapon->GetTransform());
+	
+	if (NewWeapon)
+		AttachWeaponToCharacter(NewWeapon);
 }
 
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
@@ -246,13 +291,13 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Role < ROLE_Authority)
+	/*if (Role < ROLE_Authority)
 	{
 		ServerTakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 		return DamageAmount;
 	}
 	else
-	{
+	{*/
 		Health -= DamageAmount;
 
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage called!"));
@@ -262,10 +307,10 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 		}
 
 		return DamageAmount;
-	}
+	//}
 }
 
-void AMainCharacter::ServerTakeDamage_Implementation(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+/*void AMainCharacter::ServerTakeDamage_Implementation(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
@@ -273,7 +318,7 @@ void AMainCharacter::ServerTakeDamage_Implementation(float DamageAmount, struct 
 bool AMainCharacter::ServerTakeDamage_Validate(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	return true;
-}
+}*/
 
 void AMainCharacter::ManualTakeDamage(float DamageAmount)
 {
@@ -323,6 +368,12 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Replicate to every client, no special condition required
 	DOREPLIFETIME(AMainCharacter, Health);
+	
+	// Firing & movement properties
+	DOREPLIFETIME(AMainCharacter, bFiring);
+	DOREPLIFETIME(AMainCharacter, bReloading);
+	DOREPLIFETIME(AMainCharacter, bAiming);
+	DOREPLIFETIME(AMainCharacter, bCrouching);
+	DOREPLIFETIME(AMainCharacter, bRunning);
 }

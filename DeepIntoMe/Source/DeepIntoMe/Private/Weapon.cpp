@@ -7,6 +7,8 @@
 // Sets default values
 AWeapon::AWeapon()
 {
+	bReplicates = true;
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -53,7 +55,12 @@ void AWeapon::Tick(float DeltaTime)
 			if (ShotSound != NULL)
 				UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
 
-			CartridgesLeftInClip--;
+			if (Role == ROLE_Authority)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("DAMAGE: ") + FString::FromInt(CartridgesLeftInClip));
+				CartridgesLeftInClip--;
+			}
+		
 			Time = 0;
 		}
 	}
@@ -107,9 +114,9 @@ void AWeapon::Fire()
 		HitLocation = End;
 
 	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.bNoCollisionFail = true;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	FVector Direction = (HitLocation - FireLocation).ClampMaxSize(1) + FMath::VRand() * Offset;
+	FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
 
 	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 	Projectile->SetInstigator(ParentCharacter);
@@ -151,9 +158,24 @@ bool AWeapon::GetSimulatePhysics()
 
 void AWeapon::SetFiringStatus(bool Firing)
 {
-	bFiring = Firing;
-	if (bFiring)
-		CurrentShotsCount = 0;
+	if (Role < ROLE_Authority)
+		ServerSetFiringStatus(Firing);
+	else
+	{
+		bFiring = Firing;
+		if (bFiring)
+			CurrentShotsCount = 0;
+	}
+}
+
+void AWeapon::ServerSetFiringStatus_Implementation(bool Firing)
+{
+	SetFiringStatus(Firing);
+}
+
+bool AWeapon::ServerSetFiringStatus_Validate(bool Firing)
+{
+	return true;
 }
 
 bool AWeapon::GetFiringStatus()
@@ -200,4 +222,14 @@ void AWeapon::OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent
 void AWeapon::OnPickUpEndOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
+}
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeapon, CartridgesLeftInClip);
+	DOREPLIFETIME(AWeapon, CurrentShotsCount);
+	DOREPLIFETIME(AWeapon, Clips);
+	DOREPLIFETIME(AWeapon, bFiring);
 }
