@@ -95,10 +95,8 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
 	
+	//UFUNCTION(Client, Reliable)
 	void PlayShootSound();
-	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerPlayShootSound();
 
 	USoundBase * GetRandomShotSound();
 

@@ -114,8 +114,13 @@ public:
 	void ServerReload();
 
 	void StartAiming();
-
+	
 	void StopAiming();
+	
+	void SetAiming(bool Aiming);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetAiming(bool Aiming);
 
 	void StartCrouching();
 

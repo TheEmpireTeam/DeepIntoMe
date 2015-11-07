@@ -187,12 +187,30 @@ bool AMainCharacter::ServerReload_Validate()
 
 void AMainCharacter::StartAiming()
 {
-	bAiming = true;
+	ServerSetAiming(true);
 }
 
 void AMainCharacter::StopAiming()
 {
-	bAiming = false;
+	ServerSetAiming(false);
+}
+
+void AMainCharacter::SetAiming(bool Aiming)
+{
+	if (Role < ROLE_Authority)
+		ServerSetAiming(false);
+	else
+		bAiming = Aiming;
+}
+
+void AMainCharacter::ServerSetAiming_Implementation(bool Aiming)
+{
+	SetAiming(Aiming);
+}
+
+bool AMainCharacter::ServerSetAiming_Validate(bool Aiming)
+{
+	return true;
 }
 
 void AMainCharacter::StartCrouching()

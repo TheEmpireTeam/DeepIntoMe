@@ -7,8 +7,6 @@
 // Sets default values
 AWeapon::AWeapon()
 {
-	//bReplicates = true;
-
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -40,53 +38,32 @@ void AWeapon::BeginPlay()
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	/*if (Role < ROLE_Authority)
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Client tick"));
+	else
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Server tick"));
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("---"));*/
 
 	static float Time = 0;
 	Time += DeltaTime;
 	
-	/*static int32 counter = 0;
-	counter += DeltaTime;
-	if (counter % 5000 == 0)
-		CartridgesLeftInClip--;*/
-
 	if (bFiring && Time > (1 / FireRate))
 	{
 		if (CartridgesLeftInClip > 0)
 		{
 			Fire();
-
-			PlayShootSound();
 		
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, L"Shoot");
 			Time = 0;
 		}
-		/*else
-		{
-			bFiring = false;
-		}*/
 	}
 }
 
 void AWeapon::PlayShootSound()
 {
-	/*if (Role < ROLE_Authority)
-		ServerPlayShootSound();
-	else
-	{*/
-		USoundBase * ShotSound = GetRandomShotSound();
-		if (ShotSound != NULL)
-			UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
-	//}
-}
-
-void AWeapon::ServerPlayShootSound_Implementation()
-{
-	PlayShootSound();
-}
-
-bool AWeapon::ServerPlayShootSound_Validate()
-{
-	return true;
+	USoundBase * ShotSound = GetRandomShotSound();
+	if (ShotSound != NULL)
+		UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
 }
 
 USoundBase * AWeapon::GetRandomShotSound()
@@ -116,7 +93,16 @@ FString AWeapon::GetActionMessage()
 void AWeapon::Fire()
 {
 	if (Role < ROLE_Authority)
+	{
+		CartridgesLeftInClip--;
+		CurrentShotsCount++;
+		
+		PlayShootSound();
+		
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Client side call"));
+		
 		ServerFire();
+	}
 	else
 	{
 		FVector Location; 
@@ -126,8 +112,7 @@ void AWeapon::Fire()
 		FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
 
 		FCollisionQueryParams Params;
-		FVector HitLocation;
-		CurrentShotsCount++;
+		FVector HitLocation;	
 
 		FHitResult OutHit;
 		float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
@@ -146,7 +131,10 @@ void AWeapon::Fire()
 		Projectile->SetInstigator(ParentCharacter);
 		Projectile->SetDamage(Damage);
 		
+		CurrentShotsCount++;
 		CartridgesLeftInClip--;
+		
+		PlayShootSound();
 	}
 }
 
@@ -181,16 +169,11 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 
 void AWeapon::Reload()
 {
-	/*if (Role < ROLE_Authority)
-		ServerReload();
-	else
-	{*/
-		if (Clips > 0)
-		{
-			CartridgesLeftInClip = ClipCapacity;
-			Clips--;
-		}
-	//}
+	if (Clips > 0)
+	{
+		CartridgesLeftInClip = ClipCapacity;
+		Clips--;
+	}
 }
 
 void AWeapon::ServerReload_Implementation()
@@ -210,14 +193,9 @@ bool AWeapon::GetSimulatePhysics()
 
 void AWeapon::SetFiringStatus(bool Firing)
 {
-	/*if (Role < ROLE_Authority)
-		ServerSetFiringStatus(Firing);
-	else
-	{*/
-		bFiring = Firing;
-		if (bFiring)
-			CurrentShotsCount = 0;
-	//}
+	bFiring = Firing;
+	if (bFiring)
+		CurrentShotsCount = 0;
 }
 
 void AWeapon::ServerSetFiringStatus_Implementation(bool Firing)
@@ -275,13 +253,3 @@ void AWeapon::OnPickUpEndOverlap(AActor* OtherActor, class UPrimitiveComponent* 
 {
 
 }
-
-/*void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AWeapon, CartridgesLeftInClip);
-	//DOREPLIFETIME(AWeapon, CurrentShotsCount);
-	//DOREPLIFETIME(AWeapon, Clips);
-	//DOREPLIFETIME(AWeapon, bFiring);
-}*/
