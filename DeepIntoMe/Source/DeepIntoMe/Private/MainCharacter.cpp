@@ -3,7 +3,7 @@
 #include "DeepIntoMe.h"
 #include "MainCharacter.h"
 #include "DIMPlayerState.h"
-
+#include "DeepIntoMeHUD.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -32,6 +32,8 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	bTestIsDead = false;
 	
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -114,16 +116,14 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
+	if (Weapon && !bReloading && !IsMagazineEmpty())
+	{
+		bFiring = true;
+		Weapon->SetFiringStatus(true);
+	}
+	
 	if (Role < ROLE_Authority)
 		ServerStartFire();
-	else
-	{
-		if (Weapon && !bReloading && !IsMagazineEmpty())
-		{
-			bFiring = true;
-			Weapon->SetFiringStatus(true);
-		}
-	}
 }
 
 void AMainCharacter::ServerStartFire_Implementation()
@@ -138,16 +138,14 @@ bool AMainCharacter::ServerStartFire_Validate()
 
 void AMainCharacter::StopFire()
 {
+	if (Weapon)
+	{
+		bFiring = false;
+		Weapon->SetFiringStatus(false);
+	}
+	
 	if (Role < ROLE_Authority)
 		ServerStopFire();
-	else
-	{
-		if (Weapon)
-		{
-			bFiring = false;
-			Weapon->SetFiringStatus(false);
-		}
-	}
 }
 
 void AMainCharacter::ServerStopFire_Implementation()
@@ -163,16 +161,14 @@ bool AMainCharacter::ServerStopFire_Validate()
 
 void AMainCharacter::Reload()
 {
+	if (Weapon && CanReload())
+	{
+		bReloading = true;
+		Weapon->Reload();
+	}
+	
 	if (Role < ROLE_Authority)
 		ServerReload();
-	else
-	{
-		if (Weapon && CanReload())
-		{
-			bReloading = true;
-			Weapon->Reload();
-		}
-	}
 }
 
 void AMainCharacter::ServerReload_Implementation()
@@ -197,10 +193,10 @@ void AMainCharacter::StopAiming()
 
 void AMainCharacter::SetAiming(bool Aiming)
 {
+	bAiming = Aiming;
+
 	if (Role < ROLE_Authority)
 		ServerSetAiming(false);
-	else
-		bAiming = Aiming;
 }
 
 void AMainCharacter::ServerSetAiming_Implementation(bool Aiming)
@@ -215,12 +211,30 @@ bool AMainCharacter::ServerSetAiming_Validate(bool Aiming)
 
 void AMainCharacter::StartCrouching()
 {
-	bCrouching = true;
+	SetChourching(true);
 }
 
 void AMainCharacter::StopCrouching()
 {
-	bCrouching = false;
+	SetChourching(false);
+}
+
+void AMainCharacter::SetChourching(bool Crouching)
+{
+	bCrouching = Crouching;
+	
+	if (Role < ROLE_Authority)
+		ServerSetChourching(Crouching);
+}
+	
+void AMainCharacter::ServerSetChourching_Implementation(bool Crouching)
+{
+	SetChourching(Crouching);
+}
+
+bool AMainCharacter::ServerSetChourching_Validate(bool Crouching)
+{
+	return true;
 }
 
 void AMainCharacter::StartRunning()
@@ -237,13 +251,22 @@ void AMainCharacter::SetRunningStatus(bool Running)
 {
 	bRunning = Running;
 	if (bRunning)
-	{
 		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
-	}
 	else
-	{
 		GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
-	}
+		
+	if (Role < ROLE_Authority)
+		ServerSetRunningStatus(Running);
+}
+
+void AMainCharacter::ServerSetRunningStatus_Implementation(bool Running)
+{
+	SetRunningStatus(Running);
+}
+
+bool AMainCharacter::ServerSetRunningStatus_Validate(bool Running)
+{
+	return true;
 }
 
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
@@ -257,10 +280,7 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
 {
-	if (Weapon)
-		return Weapon->GetWeaponMesh();
-	else
-		return NULL;
+	return (Weapon) ? Weapon->GetWeaponMesh() : NULL;
 }
 
 AWeapon* AMainCharacter::GetWeapon()
@@ -286,9 +306,9 @@ void AMainCharacter::OnBeginOverlap(AActor* OtherActor)
 {
 	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
 
-	if (UsableItem != NULL)
+	if (UsableItem)
 	{
-		if (GEngine != NULL)
+		if (GEngine)
 		{
 			FString Message = UsableItem->GetActionMessage();
 			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, Message);
@@ -301,28 +321,52 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 {
 	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
 
-	if (UsableItem != NULL)
-	{
+	if (UsableItem)
 		Items.Remove(OtherActor->GetHumanReadableName());
-	}
 }
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	Health -= DamageAmount;
-
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("TakeDamage called!"));
-	if (Health < 0)
+	if (!bTestIsDead)
 	{
-		OnDying();
-	}
+		Health -= DamageAmount;
 
+		if (Health < 0)
+		{
+			Health = 0;
+			OnDying();
+			
+			if (Role == ROLE_Authority)
+			{
+				if (EventInstigator)
+				{
+					if (EventInstigator->GetPawn() != this)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, EventInstigator->GetPawn()->PlayerState->PlayerName);
+						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("WAS KILLED BY"));
+						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
+					}
+					else
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
+						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("HAS KILLED HIMSELF"));
+					}
+				}
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
+					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("HAS BEEN KILLED BY UNDETECTED REASON"));
+				}
+			}
+		}
+	}
+	
 	return DamageAmount;
 }
 
 void AMainCharacter::OnDying()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Player died!"));
+	bTestIsDead = true;
 
 	//DetachWeaponFromCharacter(Weapon->GetTransform());
 }
@@ -349,6 +393,7 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMainCharacter, Health);
+	DOREPLIFETIME(AMainCharacter, bTestIsDead);
 	
 	// Firing & movement properties
 	DOREPLIFETIME(AMainCharacter, bFiring);

@@ -39,12 +39,6 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	/*if (Role < ROLE_Authority)
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Client tick"));
-	else
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Server tick"));
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("---"));*/
-
 	static float Time = 0;
 	Time += DeltaTime;
 	
@@ -92,60 +86,36 @@ FString AWeapon::GetActionMessage()
 
 void AWeapon::Fire()
 {
-	if (Role < ROLE_Authority)
-	{
-		CartridgesLeftInClip--;
-		CurrentShotsCount++;
-		
-		PlayShootSound();
-		
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Client side call"));
-		
-		ServerFire();
-	}
+	FVector Location; 
+	FRotator Rotation;
+	ParentCharacter->GetActorEyesViewPoint(Location, Rotation);
+
+	FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
+
+	FCollisionQueryParams Params;
+	FVector HitLocation;	
+
+	FHitResult OutHit;
+	float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
+
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
+		HitLocation = OutHit.Location;
 	else
-	{
-		FVector Location; 
-		FRotator Rotation;
-		ParentCharacter->GetActorEyesViewPoint(Location, Rotation);
+		HitLocation = End;
 
-		FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
+	FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
 
-		FCollisionQueryParams Params;
-		FVector HitLocation;	
-
-		FHitResult OutHit;
-		float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
-
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
-			HitLocation = OutHit.Location;
-		else
-			HitLocation = End;
-
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-		FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
-
-		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
-		Projectile->SetInstigator(ParentCharacter);
-		Projectile->SetDamage(Damage);
-		
-		CurrentShotsCount++;
-		CartridgesLeftInClip--;
-		
-		PlayShootSound();
-	}
-}
-
-void AWeapon::ServerFire_Implementation()
-{
-	Fire();
-}
-
-bool AWeapon::ServerFire_Validate()
-{
-	return true;
+	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
+	Projectile->SetInstigator(ParentCharacter);
+	Projectile->SetDamage(Damage);
+	
+	CurrentShotsCount++;
+	CartridgesLeftInClip--;
+	
+	PlayShootSound();
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
@@ -176,16 +146,6 @@ void AWeapon::Reload()
 	}
 }
 
-void AWeapon::ServerReload_Implementation()
-{
-	Reload();
-}
-
-bool AWeapon::ServerReload_Validate()
-{
-	return true;
-}
-
 bool AWeapon::GetSimulatePhysics()
 {
 	return bSimulatePhysics;
@@ -196,16 +156,6 @@ void AWeapon::SetFiringStatus(bool Firing)
 	bFiring = Firing;
 	if (bFiring)
 		CurrentShotsCount = 0;
-}
-
-void AWeapon::ServerSetFiringStatus_Implementation(bool Firing)
-{
-	SetFiringStatus(Firing);
-}
-
-bool AWeapon::ServerSetFiringStatus_Validate(bool Firing)
-{
-	return true;
 }
 
 bool AWeapon::GetFiringStatus()

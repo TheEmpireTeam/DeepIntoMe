@@ -71,7 +71,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	float YLookRate;
-
+	
+	// Test 'dead' flag
+	UPROPERTY(Replicated)
+	bool bTestIsDead;
 
 public:
 	// Sets default values for this character's properties
@@ -125,12 +128,20 @@ public:
 	void StartCrouching();
 
 	void StopCrouching();
+	
+	void SetChourching(bool Crouching);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetChourching(bool Crouching);
 
 	void StartRunning();
 
 	void StopRunning();
 
 	void SetRunningStatus(bool Running);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetRunningStatus(bool Running);
 
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);

@@ -10,23 +10,22 @@ class ADIMPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
-	UPROPERTY(Replicated, VisibleAnywhere)
+	UPROPERTY(Replicated)
 	int32 NumKills;
 
-	UPROPERTY(Replicated, VisibleAnywhere)
+	UPROPERTY(Replicated)
 	int32 NumDeaths;
 
-	UPROPERTY(Replicated, ReplicatedUsing = OnRep_MultiplayerId)
+	UPROPERTY(Replicated)
 	int32 MultiplayerId;
-
-	UFUNCTION()
-	void OnRep_MultiplayerId(int32 PreviousId);
 
 public:
 	virtual void BeginPlay() override;
 
 	void ResetScore();
-
+	
+	void GiveName();
+	
 	UFUNCTION(Server, Reliable, WithValidation)
-	void RegisterInNetworkManager();
+	void ServerGiveName();
 };

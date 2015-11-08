@@ -92,9 +92,6 @@ public:
 
 	void Fire();
 	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerFire();
-	
 	//UFUNCTION(Client, Reliable)
 	void PlayShootSound();
 
@@ -111,9 +108,6 @@ public:
 	class USoundBase * DrawSound;
 
 	void Reload();
-	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerReload();
 
 	void SetSimulatePhysics(bool SimulatePhyics);
 
@@ -122,9 +116,6 @@ public:
 	void SetParentCharacter(AMainCharacter* NewParentCharacter);
 
 	void SetFiringStatus(bool Firing);
-	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerSetFiringStatus(bool Firing);
 
 	bool GetFiringStatus();
 
