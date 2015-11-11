@@ -23,6 +23,7 @@ class IUsableInterface
 
 	//A message that will be sent to HUD for using some shit
 	virtual FString GetActionMessage() = 0;
-
-
+	
+public:
+	virtual FString GetUsableName() = 0;
 };

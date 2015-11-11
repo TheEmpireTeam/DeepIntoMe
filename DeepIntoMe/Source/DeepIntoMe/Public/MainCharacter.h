@@ -51,19 +51,19 @@ private:
 public:
 
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bFiring;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bReloading;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
+	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bAiming;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
+	UPROPERTY(BlueprintReadWrite, Category = Movement)
 	bool bCrouching;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
+	UPROPERTY(BlueprintReadWrite, Category = Movement)
 	bool bRunning;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)

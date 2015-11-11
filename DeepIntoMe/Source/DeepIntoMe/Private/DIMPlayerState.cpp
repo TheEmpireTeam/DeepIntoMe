@@ -10,13 +10,7 @@ void ADIMPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (Role == ROLE_Authority)
-	{
-		const FString Suffix = FString::FromInt(FMath::RandRange(0, 999));
-		SetPlayerName(FPlatformProcess::ComputerName() + Suffix);
-	}
-	//GiveName();
-
+	GiveName();
 	ResetScore();
 }
 
@@ -31,7 +25,10 @@ void ADIMPlayerState::GiveName()
 	if (Role < ROLE_Authority)
 		ServerGiveName();
 	else
-		GiveName();
+	{
+		const FString Suffix = FString::FromInt(FMath::RandRange(0, 999));
+		SetPlayerName(FPlatformProcess::ComputerName() + Suffix);
+	}
 }
 
 void ADIMPlayerState::ServerGiveName_Implementation()

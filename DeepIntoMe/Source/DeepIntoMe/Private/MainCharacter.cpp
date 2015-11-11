@@ -40,25 +40,21 @@ void AMainCharacter::BeginPlay()
 	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
 
 	if (NewWeapon)
+	{
 		AddWeapon(NewWeapon);
+	}
 
 	StopRunning();
 }
 
 bool AMainCharacter::IsMagazineEmpty()
 {
-	if (Weapon) 
-		return (Weapon->GetCartridgesInClipCount() == 0);
-
-	return true;
+	return (Weapon) ? (Weapon->GetAmmoInClipCount() == 0) : true;
 }
 
 bool AMainCharacter::CanReload()
 {
-	if (Weapon)
-		return (Weapon->GetClipCount() > 0 && !Weapon->IsClipFull());
-
-	return false;
+	return (Weapon) ? Weapon->CanReload() : false;
 }
 
 // Called to bind functionality to input
@@ -123,7 +119,9 @@ void AMainCharacter::StartFire()
 	}
 	
 	if (Role < ROLE_Authority)
+	{
 		ServerStartFire();
+	}
 }
 
 void AMainCharacter::ServerStartFire_Implementation()
@@ -145,7 +143,9 @@ void AMainCharacter::StopFire()
 	}
 	
 	if (Role < ROLE_Authority)
+	{
 		ServerStopFire();
+	}
 }
 
 void AMainCharacter::ServerStopFire_Implementation()
@@ -168,7 +168,9 @@ void AMainCharacter::Reload()
 	}
 	
 	if (Role < ROLE_Authority)
+	{
 		ServerReload();
+	}
 }
 
 void AMainCharacter::ServerReload_Implementation()
@@ -183,12 +185,12 @@ bool AMainCharacter::ServerReload_Validate()
 
 void AMainCharacter::StartAiming()
 {
-	ServerSetAiming(true);
+	SetAiming(true);
 }
 
 void AMainCharacter::StopAiming()
 {
-	ServerSetAiming(false);
+	SetAiming(false);
 }
 
 void AMainCharacter::SetAiming(bool Aiming)
@@ -196,7 +198,9 @@ void AMainCharacter::SetAiming(bool Aiming)
 	bAiming = Aiming;
 
 	if (Role < ROLE_Authority)
-		ServerSetAiming(false);
+	{
+		ServerSetAiming(Aiming);
+	}
 }
 
 void AMainCharacter::ServerSetAiming_Implementation(bool Aiming)
@@ -224,7 +228,9 @@ void AMainCharacter::SetChourching(bool Crouching)
 	bCrouching = Crouching;
 	
 	if (Role < ROLE_Authority)
+	{
 		ServerSetChourching(Crouching);
+	}
 }
 	
 void AMainCharacter::ServerSetChourching_Implementation(bool Crouching)
@@ -251,12 +257,18 @@ void AMainCharacter::SetRunningStatus(bool Running)
 {
 	bRunning = Running;
 	if (bRunning)
+	{
 		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
 	else
+	{
 		GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
+	}
 		
 	if (Role < ROLE_Authority)
+	{
 		ServerSetRunningStatus(Running);
+	}
 }
 
 void AMainCharacter::ServerSetRunningStatus_Implementation(bool Running)
@@ -272,10 +284,14 @@ bool AMainCharacter::ServerSetRunningStatus_Validate(bool Running)
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon)
+	{
 		DetachWeaponFromCharacter(Weapon->GetTransform());
+	}
 	
 	if (NewWeapon)
+	{
 		AttachWeaponToCharacter(NewWeapon);
+	}
 }
 
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
@@ -322,7 +338,9 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
 
 	if (UsableItem)
+	{
 		Items.Remove(OtherActor->GetHumanReadableName());
+	}
 }
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -396,9 +414,9 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainCharacter, bTestIsDead);
 	
 	// Firing & movement properties
-	DOREPLIFETIME(AMainCharacter, bFiring);
+	/*DOREPLIFETIME(AMainCharacter, bFiring);
 	DOREPLIFETIME(AMainCharacter, bReloading);
 	DOREPLIFETIME(AMainCharacter, bAiming);
 	DOREPLIFETIME(AMainCharacter, bCrouching);
-	DOREPLIFETIME(AMainCharacter, bRunning);
+	DOREPLIFETIME(AMainCharacter, bRunning);*/
 }

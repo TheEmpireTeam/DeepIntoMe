@@ -31,7 +31,7 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CartridgesLeftInClip = ClipCapacity;
+	AmmoLeftInClip = ClipCapacity;
 }
 
 // Called every frame
@@ -44,7 +44,7 @@ void AWeapon::Tick(float DeltaTime)
 	
 	if (bFiring && Time > (1 / FireRate))
 	{
-		if (CartridgesLeftInClip > 0)
+		if (AmmoLeftInClip > 0)
 		{
 			Fire();
 		
@@ -113,7 +113,7 @@ void AWeapon::Fire()
 	Projectile->SetDamage(Damage);
 	
 	CurrentShotsCount++;
-	CartridgesLeftInClip--;
+	AmmoLeftInClip--;
 	
 	PlayShootSound();
 }
@@ -139,10 +139,16 @@ void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 
 void AWeapon::Reload()
 {
-	if (Clips > 0)
+	if (AmmoLeftTotal > 0)
 	{
-		CartridgesLeftInClip = ClipCapacity;
-		Clips--;
+		// How many ammo we need to fill current clip to full size
+		int32 AmmoNeedToReload = FMath::Min(ClipCapacity - AmmoLeftInClip, AmmoLeftTotal);
+		
+		if (AmmoNeedToReload > 0)
+		{
+			AmmoLeftInClip += AmmoNeedToReload;
+			AmmoLeftTotal -= AmmoNeedToReload;
+		}
 	}
 }
 
@@ -163,24 +169,29 @@ bool AWeapon::GetFiringStatus()
 	return bFiring;
 }
 
-int32 AWeapon::GetCartridgesInClipCount()
+int32 AWeapon::GetAmmoInClipCount()
 {
-	return CartridgesLeftInClip;
+	return AmmoLeftInClip;
 }
 
 bool AWeapon::IsClipFull()
 {
-	return (CartridgesLeftInClip == ClipCapacity);
+	return (AmmoLeftInClip == ClipCapacity);
 }
 
-int32 AWeapon::GetClipCount()
+int32 AWeapon::GetRemainingAmmoCount()
 {
-	return Clips;
+	return AmmoLeftTotal;
 }
 
 int32 AWeapon::GetClipSize()
 {
 	return ClipCapacity;
+}
+
+bool AWeapon::CanReload()
+{
+	return (!IsClipFull() && AmmoLeftTotal > 0);
 }
 
 USkeletalMeshComponent* AWeapon::GetWeaponMesh()
@@ -202,4 +213,9 @@ void AWeapon::OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent
 void AWeapon::OnPickUpEndOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
+}
+
+FString AWeapon::GetUsableName()
+{
+	return InventoryName;
 }
