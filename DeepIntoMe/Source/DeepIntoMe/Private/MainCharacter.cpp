@@ -4,6 +4,7 @@
 #include "MainCharacter.h"
 #include "DIMPlayerState.h"
 #include "DeepIntoMeHUD.h"
+#include "DeepIntoMePlayerController.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -22,7 +23,7 @@ AMainCharacter::AMainCharacter()
 	Camera->AttachTo(GetCapsuleComponent());
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
-	Health = 100;
+	Health = 100.0f;
 	
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -112,10 +113,10 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::StartFire()
 {
-	if (Weapon && !bReloading && !IsMagazineEmpty())
+	if (Weapon && !bReloading && Weapon->GetAmmoInClipCount() > 0)
 	{
 		bFiring = true;
-		Weapon->SetFiringStatus(true);
+		Weapon->StartFire();
 	}
 	
 	if (Role < ROLE_Authority)
@@ -139,7 +140,7 @@ void AMainCharacter::StopFire()
 	if (Weapon)
 	{
 		bFiring = false;
-		Weapon->SetFiringStatus(false);
+		Weapon->StopFire();
 	}
 	
 	if (Role < ROLE_Authority)
@@ -285,7 +286,7 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon)
 	{
-		DetachWeaponFromCharacter(Weapon->GetTransform());
+		DropWeapon();
 	}
 	
 	if (NewWeapon)
@@ -350,10 +351,7 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 		Health -= DamageAmount;
 
 		if (Health < 0)
-		{
-			Health = 0;
-			OnDying();
-			
+		{	
 			if (Role == ROLE_Authority)
 			{
 				if (EventInstigator)
@@ -375,7 +373,9 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
 					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("HAS BEEN KILLED BY UNDETECTED REASON"));
 				}
-			}
+				
+				OnDying();
+			}		
 		}
 	}
 	
@@ -384,9 +384,25 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void AMainCharacter::OnDying()
 {
+	Health = 0;
 	bTestIsDead = true;
 
-	//DetachWeaponFromCharacter(Weapon->GetTransform());
+	DropWeapon();
+	
+	SetSpectatorMode();
+}
+
+void AMainCharacter::SetSpectatorMode()
+{
+	//DetachFromControllerPendingDestroy();
+			
+	ADeepIntoMePlayerController* PlayerController = Cast<ADeepIntoMePlayerController>(Controller);
+	if (PlayerController)
+	{
+		PlayerController->SetSpectatorMode();
+	}
+			
+	Destroy();
 }
 
 void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
@@ -397,13 +413,37 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
 }
 
-void AMainCharacter::DetachWeaponFromCharacter(FTransform NewTransform)
+void AMainCharacter::DropWeapon()
 {
-	Weapon->DetachRootComponentFromParent(false);
-	Weapon->SetParentCharacter(NULL);
-	Weapon->SetSimulatePhysics(true);
-	Weapon->SetActorTransform(NewTransform);
-	Weapon = NULL;
+	if (Role < ROLE_Authority)
+	{
+		ServerDropWeapon();
+	}
+	
+	// Remove current weapon from world
+	if (Weapon)
+	{
+		Weapon->DetachRootComponentFromParent(false);
+		Weapon->SetParentCharacter(NULL);
+		Weapon->SetSimulatePhysics(true);
+		Weapon->Destroy();
+		Weapon = NULL;
+	}
+}
+
+void AMainCharacter::ServerDropWeapon_Implementation()
+{
+	DropWeapon();
+}
+
+bool AMainCharacter::ServerDropWeapon_Validate()
+{
+	return true;
+}
+
+void AMainCharacter::ClientDropWeapon_Implementation()
+{
+	
 }
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -414,9 +454,8 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainCharacter, bTestIsDead);
 	
 	// Firing & movement properties
-	/*DOREPLIFETIME(AMainCharacter, bFiring);
 	DOREPLIFETIME(AMainCharacter, bReloading);
 	DOREPLIFETIME(AMainCharacter, bAiming);
 	DOREPLIFETIME(AMainCharacter, bCrouching);
-	DOREPLIFETIME(AMainCharacter, bRunning);*/
+	DOREPLIFETIME(AMainCharacter, bRunning);
 }

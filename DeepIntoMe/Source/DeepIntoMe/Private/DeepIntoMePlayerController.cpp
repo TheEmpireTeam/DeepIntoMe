@@ -4,18 +4,20 @@
 #include "DeepIntoMePlayerController.h"
 
 
-ADeepIntoMePlayerController::ADeepIntoMePlayerController()
-: Super()
+void ADeepIntoMePlayerController::SetSpectatorMode()
 {
-	SetPlayerName(TEXT("Default Name"));
+	PlayerState->bIsSpectator = true;
+	ChangeState(NAME_Spectating);
+	ClientGotoState(NAME_Spectating);
+	
+	ClientHUDStateChanged(EHUDState::Spectator);
 }
 
-void ADeepIntoMePlayerController::SetPlayerName(FString NewName)
+void ADeepIntoMePlayerController::ClientHUDStateChanged_Implementation(EHUDState NewState)
 {
-	PlayerName = NewName;
-}
-
-FString ADeepIntoMePlayerController::GetPlayerName()
-{
-	return PlayerName;
+	ADeepIntoMeHUD* HUD = Cast<ADeepIntoMeHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->OnStateChanged(NewState);
+	}
 }

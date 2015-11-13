@@ -3,24 +3,17 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
+#include "DeepIntoMeHUD.h"
 #include "DeepIntoMePlayerController.generated.h"
 
 UCLASS()
 class ADeepIntoMePlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
+	
 public:
-	ADeepIntoMePlayerController();
-
-	UFUNCTION(BlueprintCallable, Category = Gameplay)
-	void SetPlayerName(FString Name);
-
-	UFUNCTION(BlueprintCallable, Category = Gameplay)
-	FString GetPlayerName();
+	void SetSpectatorMode();
 	
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	FString PlayerName;
-	
+	UFUNCTION(Client, Reliable)
+	void ClientHUDStateChanged(EHUDState NewState);
 };

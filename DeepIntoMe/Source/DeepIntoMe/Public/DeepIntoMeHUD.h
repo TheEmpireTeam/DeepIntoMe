@@ -8,7 +8,8 @@
 UENUM(BlueprintType)
 enum class EHUDState : uint8 {
 	MainMenu,
-	Ingame
+	Ingame,
+	Spectator
 };
 
 UCLASS()

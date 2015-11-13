@@ -27,7 +27,8 @@ class AWeapon : public AActor, public IUsableInterface
 
 private:
 
-	const int MAX_AIM_DISTANCE = 100000; 
+	const int MAX_AIM_DISTANCE = 100000;
+	
 
 	AMainCharacter* ParentCharacter;
 
@@ -80,6 +81,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float Damage;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	bool bIsAutomatic;
+	
+	
+	float TimeBetweenShots;
+	
+	float LastFireTime;
 	
 	FTimerHandle FiringHandleTimer;
 
@@ -90,11 +98,8 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick(float DeltaSeconds) override;
 
-	void Fire();
+	void HandleFiring();
 	
 	void PlayShootSound();
 
@@ -102,13 +107,10 @@ public:
 
 	// Weapon sounds
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds")
-	class USoundBase * FirstShotSound;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds")
 	TArray<USoundBase*> ShotSounds;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds")
-	class USoundBase * DrawSound;
+	class USoundBase * OutOfAmmoSound;
 
 	void Reload();
 
@@ -117,10 +119,6 @@ public:
 	bool GetSimulatePhysics();
 
 	void SetParentCharacter(AMainCharacter* NewParentCharacter);
-
-	void SetFiringStatus(bool Firing);
-
-	bool GetFiringStatus();
 
 	USkeletalMeshComponent* GetWeaponMesh();
 
@@ -160,6 +158,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Clip State")
 	int32 GetRemainingAmmoCount();
+	
+	// Function part
+	void StartFire();
+	
+	void StopFire();
+
+	bool GetFiringStatus();
 	
 
 public:

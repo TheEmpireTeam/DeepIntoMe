@@ -54,16 +54,16 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = Firing)
 	bool bFiring;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bReloading;
 
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
 	bool bAiming;
 
-	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
 	bool bCrouching;
 
-	UPROPERTY(BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
 	bool bRunning;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
@@ -148,7 +148,15 @@ public:
 
 	//Detaches weapon from character and set it to simulate physics and to overlap
 	//Takes a new location for detached weapon
-	void DetachWeaponFromCharacter(FTransform NewTransform);
+	//void DetachWeaponFromCharacter(FTransform NewTransform);
+	
+	void DropWeapon();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerDropWeapon();
+	
+	UFUNCTION(Client, Reliable)
+	void ClientDropWeapon();
 
 	//Handles damage
 	UFUNCTION()
@@ -184,5 +192,8 @@ public:
 
 	// For using items that currently avalaible
 	void UseItem();
+	
+	
+	void SetSpectatorMode();
 	
 };

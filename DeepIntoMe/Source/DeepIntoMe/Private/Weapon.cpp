@@ -32,51 +32,31 @@ void AWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	AmmoLeftInClip = ClipCapacity;
-}
-
-// Called every frame
-void AWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	
-	static float Time = 0;
-	Time += DeltaTime;
-	
-	if (bFiring && Time > (1 / FireRate))
-	{
-		if (AmmoLeftInClip > 0)
-		{
-			Fire();
-		
-			Time = 0;
-		}
-	}
+	TimeBetweenShots = 1 / FireRate;
 }
 
 void AWeapon::PlayShootSound()
 {
 	USoundBase * ShotSound = GetRandomShotSound();
-	if (ShotSound != NULL)
+	if (ShotSound)
+	{
 		UGameplayStatics::PlaySoundAtLocation(this, ShotSound, GetActorLocation());
+	}
 }
 
 USoundBase * AWeapon::GetRandomShotSound()
 {
 	int32 count = ShotSounds.Num();
-	if (count == 0)
-		return NULL;
-	else
-	{
-		int32 randomIndex = FMath::RandRange(0, count - 1);
-		return ShotSounds[randomIndex];
-	}
+	return (count == 0) ? NULL : ShotSounds[FMath::RandRange(0, count - 1)];
 }
 
 void AWeapon::OnUsed(ACharacter* User)
 {
 	AMainCharacter* MainUser = Cast<AMainCharacter>(User);
 	if (MainUser)
+	{
 		MainUser->AddWeapon(this);
+	}
 }
 
 FString AWeapon::GetActionMessage()
@@ -84,38 +64,55 @@ FString AWeapon::GetActionMessage()
 	return ActionMessage;
 }
 
-void AWeapon::Fire()
+void AWeapon::HandleFiring()
 {
-	FVector Location; 
-	FRotator Rotation;
-	ParentCharacter->GetActorEyesViewPoint(Location, Rotation);
+	// Decline fire attempt, if clip is empty
+	if (AmmoLeftInClip > 0)
+	{
+		FVector Location; 
+		FRotator Rotation;
+		ParentCharacter->GetActorEyesViewPoint(Location, Rotation);
 
-	FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
+		FVector End = Location + Rotation.Vector() * MAX_AIM_DISTANCE;
 
-	FCollisionQueryParams Params;
-	FVector HitLocation;	
+		FCollisionQueryParams Params;
+		FVector HitLocation;
 
-	FHitResult OutHit;
-	float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
+		FHitResult OutHit;
+		float Offset = FMath::Clamp<float>(CurrentShotsCount * OffsetRate, 0, MaxOffset);
 
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
-		HitLocation = OutHit.Location;
-	else
-		HitLocation = End;
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, Location, End, ECollisionChannel::ECC_Visibility, Params))
+		{
+			HitLocation = OutHit.Location;
+		}
+		else
+		{
+			HitLocation = End;
+		}
 
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
-	FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
+		FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
 
-	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
-	Projectile->SetInstigator(ParentCharacter);
-	Projectile->SetDamage(Damage);
-	
-	CurrentShotsCount++;
-	AmmoLeftInClip--;
-	
-	PlayShootSound();
+		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
+		Projectile->SetInstigator(ParentCharacter);
+		Projectile->SetDamage(Damage);
+		
+		CurrentShotsCount++;
+		AmmoLeftInClip--;
+		
+		PlayShootSound();
+		
+		// Update last fire time
+		LastFireTime = GetWorld()->GetTimeSeconds();
+		
+		// Trigger next shot if weapon is automatic
+		if (bIsAutomatic && AmmoLeftInClip > 0)
+		{
+			GetWorldTimerManager().SetTimer(FiringHandleTimer, this, &AWeapon::HandleFiring, TimeBetweenShots, false);
+		}
+	}
 }
 
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
@@ -157,11 +154,32 @@ bool AWeapon::GetSimulatePhysics()
 	return bSimulatePhysics;
 }
 
-void AWeapon::SetFiringStatus(bool Firing)
-{
-	bFiring = Firing;
-	if (bFiring)
+void AWeapon::StartFire()
+{	
+	if (AmmoLeftInClip > 0)
+	{
+		bFiring = true;
 		CurrentShotsCount = 0;
+		
+		const float GameTime = GetWorld()->GetTimeSeconds();
+		if (GameTime > LastFireTime + TimeBetweenShots)
+		{
+			// Fire immediately
+			HandleFiring();
+		}
+		else
+		{
+			// Fire after fire rate based delay
+			GetWorldTimerManager().SetTimer(FiringHandleTimer, this, &AWeapon::HandleFiring, LastFireTime + TimeBetweenShots - GameTime, false);
+		}
+	}
+}
+	
+void AWeapon::StopFire()
+{
+	bFiring = false;
+	
+	GetWorldTimerManager().ClearTimer(FiringHandleTimer);
 }
 
 bool AWeapon::GetFiringStatus()
