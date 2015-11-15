@@ -72,6 +72,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
 	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
+	InputComponent->BindAction("Drop Item", IE_Pressed, this, &AMainCharacter::NetMulticastDropWeapon);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
 	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
@@ -286,7 +287,7 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon)
 	{
-		DropWeapon();
+		NetMulticastDropWeapon();
 	}
 	
 	if (NewWeapon)
@@ -375,11 +376,25 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 				}
 				
 				OnDying();
-			}		
+			}
+			else
+			{
+				ServerDeath();
+			}
 		}
 	}
 	
 	return DamageAmount;
+}
+
+void AMainCharacter::ServerDeath_Implementation()
+{
+	OnDying();
+}
+
+bool AMainCharacter::ServerDeath_Validate()
+{
+	return true;
 }
 
 void AMainCharacter::OnDying()
@@ -387,15 +402,13 @@ void AMainCharacter::OnDying()
 	Health = 0;
 	bTestIsDead = true;
 
-	DropWeapon();
+	NetMulticastDropWeapon();
 	
 	SetSpectatorMode();
 }
 
 void AMainCharacter::SetSpectatorMode()
-{
-	//DetachFromControllerPendingDestroy();
-			
+{	
 	ADeepIntoMePlayerController* PlayerController = Cast<ADeepIntoMePlayerController>(Controller);
 	if (PlayerController)
 	{
@@ -415,35 +428,19 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 
 void AMainCharacter::DropWeapon()
 {
-	if (Role < ROLE_Authority)
-	{
-		ServerDropWeapon();
-	}
-	
-	// Remove current weapon from world
 	if (Weapon)
 	{
-		Weapon->DetachRootComponentFromParent(false);
-		Weapon->SetParentCharacter(NULL);
+		Weapon->StopFire();
+		Weapon->DetachRootComponentFromParent(true);
+		Weapon->SetParentCharacter(NULL);	
 		Weapon->SetSimulatePhysics(true);
-		Weapon->Destroy();
 		Weapon = NULL;
 	}
 }
 
-void AMainCharacter::ServerDropWeapon_Implementation()
+void AMainCharacter::NetMulticastDropWeapon_Implementation()
 {
 	DropWeapon();
-}
-
-bool AMainCharacter::ServerDropWeapon_Validate()
-{
-	return true;
-}
-
-void AMainCharacter::ClientDropWeapon_Implementation()
-{
-	
 }
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -15,9 +15,9 @@ class ADIMPlayerState : public APlayerState
 
 	UPROPERTY(Replicated)
 	int32 NumDeaths;
-
+	
 	UPROPERTY(Replicated)
-	int32 MultiplayerId;
+	int32 TeamNumber;
 
 public:
 	virtual void BeginPlay() override;
@@ -28,4 +28,13 @@ public:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerGiveName();
+	
+	void AskTeamNumber();
+	
+	// Request team number from server
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerAskTeamNumber();
+	
+	UFUNCTION(BlueprintCallable, Category = "Info")
+	int32 GetTeamNumber();
 };

@@ -14,4 +14,7 @@ class ADeepIntoMeGameState : public AGameState
 
 public:
 	virtual void BeginPlay() override;
+	
+	// Get team by automatic team filling mechanism
+	int32 GetNextPlayerTeamNumber();
 };

@@ -146,23 +146,19 @@ public:
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);
 
-	//Detaches weapon from character and set it to simulate physics and to overlap
-	//Takes a new location for detached weapon
-	//void DetachWeaponFromCharacter(FTransform NewTransform);
-	
+	// Detaches weapon from character and set it to simulate physics and to overlap
 	void DropWeapon();
 	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerDropWeapon();
-	
-	UFUNCTION(Client, Reliable)
-	void ClientDropWeapon();
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastDropWeapon();
 
-	//Handles damage
-	UFUNCTION()
+	// Handles damage
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	//Add weapon to inventory
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerDeath();
+	
+	// Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AddWeapon(AWeapon* NewWeapon);
 
