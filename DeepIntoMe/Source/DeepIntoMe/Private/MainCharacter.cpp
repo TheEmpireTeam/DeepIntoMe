@@ -347,14 +347,25 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	if (!bTestIsDead)
-	{
-		Health -= DamageAmount;
+	CheckDeath(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+	return DamageAmount;
+}
 
-		if (Health < 0)
-		{	
-			if (Role == ROLE_Authority)
-			{
+void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerCheckDeath(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	}
+	else
+	{
+		if (!bTestIsDead)
+		{
+			Health -= DamageAmount;
+
+			if (Health < 0)
+			{	
 				if (EventInstigator)
 				{
 					if (EventInstigator->GetPawn() != this)
@@ -377,14 +388,18 @@ float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 				
 				OnDying();
 			}
-			else
-			{
-				ServerDeath();
-			}
 		}
 	}
-	
-	return DamageAmount;
+}
+
+void AMainCharacter::ServerCheckDeath_Implementation(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	CheckDeath(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+bool AMainCharacter::ServerCheckDeath_Validate(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	return true;
 }
 
 void AMainCharacter::ServerDeath_Implementation()

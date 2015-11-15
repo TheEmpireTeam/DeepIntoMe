@@ -158,6 +158,11 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDeath();
 	
+	void CheckDeath(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerCheckDeath(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+	
 	// Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AddWeapon(AWeapon* NewWeapon);
