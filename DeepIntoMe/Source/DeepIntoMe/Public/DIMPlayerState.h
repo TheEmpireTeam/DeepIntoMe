@@ -30,6 +30,8 @@ public:
 	void ServerGiveName();
 	
 	void AskTeamNumber();
+
+	void AddKill();
 	
 	// Request team number from server
 	UFUNCTION(Server, Reliable, WithValidation)

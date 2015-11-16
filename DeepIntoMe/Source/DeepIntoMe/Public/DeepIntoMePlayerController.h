@@ -12,10 +12,14 @@ class ADeepIntoMePlayerController : public APlayerController
 	GENERATED_BODY()
 	
 	FTimerHandle RespawnTimer;
-	
-	const float SecondsToRespawn = 10.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	float SecondsToRespawn;
 	
 public:
+
+	ADeepIntoMePlayerController();
+
 	void SetSpectatorMode();
 	
 	UFUNCTION(Client, Reliable)

@@ -40,6 +40,11 @@ void ADIMPlayerState::ServerGiveName_Implementation()
 	GiveName();
 }
 
+void ADIMPlayerState::AddKill()
+{
+	NumKills++;
+}
+
 bool ADIMPlayerState::ServerGiveName_Validate()
 {
 	return true;

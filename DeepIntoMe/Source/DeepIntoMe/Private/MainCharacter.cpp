@@ -63,8 +63,8 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 {
 	Super::SetupPlayerInputComponent(InputComponent);
 
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	//InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	//InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	InputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);
 	InputComponent->BindAxis("LookRight", this, &AMainCharacter::LookRight);
@@ -72,14 +72,14 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
 	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
-	InputComponent->BindAction("Drop Item", IE_Pressed, this, &AMainCharacter::NetMulticastDropWeapon);
+	//InputComponent->BindAction("Drop Item", IE_Pressed, this, &AMainCharacter::NetMulticastDropWeapon);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
 	InputComponent->BindAction("Reload", IE_Pressed, this, &AMainCharacter::Reload);
 	InputComponent->BindAction("Aim", IE_Pressed, this, &AMainCharacter::StartAiming);
 	InputComponent->BindAction("Aim", IE_Released, this, &AMainCharacter::StopAiming);
-	InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartCrouching);
-	InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouching);
+	//InputComponent->BindAction("Crouch", IE_Pressed, this, &AMainCharacter::StartCrouching);
+	//InputComponent->BindAction("Crouch", IE_Released, this, &AMainCharacter::StopCrouching);
 	InputComponent->BindAction("Running", IE_Pressed, this, &AMainCharacter::StartRunning);
 	InputComponent->BindAction("Running", IE_Released, this, &AMainCharacter::StopRunning);
 }
@@ -387,6 +387,16 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 				}
 				
 				OnDying();
+
+				AMainCharacter* Killer = Cast<AMainCharacter>(EventInstigator);
+				if (Killer)
+				{
+					ADIMPlayerState* PS = Cast<ADIMPlayerState>(Killer->PlayerState);
+					if (PS)
+					{
+						PS->AddKill();
+					}
+				}
 			}
 		}
 	}
@@ -438,7 +448,15 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 	Weapon = NewWeapon;
 	Weapon->SetParentCharacter(this);
 	Weapon->SetSimulatePhysics(false);
-	Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+	//add branch for owner/replicated
+	//if (Controller->IsLocalController())
+	//{
+		Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+	//}
+	//else 
+	//{
+		//Weapon->AttachRootComponentTo(Mesh, SocketName, EAttachLocation::SnapToTarget);
+	//}
 }
 
 void AMainCharacter::DropWeapon()

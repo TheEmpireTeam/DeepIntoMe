@@ -7,6 +7,11 @@
 #include "DIMGameMode.h"
 
 
+ADeepIntoMePlayerController::ADeepIntoMePlayerController()
+{
+	SecondsToRespawn = 10.0f;
+}
+
 void ADeepIntoMePlayerController::SetSpectatorMode()
 {
 	PlayerState->bIsSpectator = true;
