@@ -373,9 +373,16 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 			{	
 				if (EventInstigator)
 				{
+					ADIMPlayerState* KillerPS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
+					
+					if (KillerPS && KillerPS != PlayerState)
+					{
+						KillerPS->AddKill();
+					}
+				
 					if (EventInstigator->GetPawn() != this)
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, EventInstigator->GetPawn()->PlayerState->PlayerName);
+						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, EventInstigator->PlayerState->PlayerName);
 						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("WAS KILLED BY"));
 						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
 					}
@@ -391,17 +398,23 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("HAS BEEN KILLED BY UNDETECTED REASON"));
 				}
 				
+				ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
+				if (PS)
+				{
+					PS->AddDeath();
+				}
+				
 				OnDying();
 
 				// Score a kill to killer, if one exists
-				if (EventInstigator)
+				/*if (EventInstigator)
 				{
-					ADIMPlayerState* PS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
+					ADIMPlayerState* KillerPS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
 					if (PS)
 					{
 						PS->AddKill();
 					}
-				}
+				}*/
 			}
 		}
 	}
@@ -431,12 +444,6 @@ void AMainCharacter::OnDying()
 {
 	Health = 0;
 	bTestIsDead = true;
-	
-	ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
-	if (PS)
-	{
-		PS->AddDeath();
-	}
 
 	NetMulticastDropWeapon();
 	

@@ -23,4 +23,7 @@ public:
 	TArray<APlayerState*> GetBailoshPlayers();
 	
 	TArray<APlayerState*> GetPlayersOfTeam(int32 TeamNumber);
+	
+	UFUNCTION(BlueprintNativeEvent, Category = "Gameplay")
+	void StartNight();
 };

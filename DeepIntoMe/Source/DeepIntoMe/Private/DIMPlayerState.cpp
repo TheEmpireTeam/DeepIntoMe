@@ -5,13 +5,32 @@
 #include "DeepIntoMeGameState.h"
 #include "DIMGameInstance.h"
 #include "DeepIntoMeHUD.h"
+#include "MainCharacter.h"
 
 
 void ADIMPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	GiveName();
+	UDIMGameInstance* GameInstance = Cast<UDIMGameInstance>(GetWorld()->GetGameInstance());
+	if (GameInstance && !GameInstance->GetNickname().IsEmpty())
+	{
+		FString Nick = GameInstance->GetNickname();
+	
+		if (Role < ROLE_Authority)
+		{
+			ServerOverrideName(Nick);
+		}
+		else
+		{
+			SetPlayerName(Nick);
+		}
+	}
+	else
+	{
+		GiveName();
+	}
+	
 	ResetScore();
 	AskTeamNumber();
 }
@@ -40,6 +59,21 @@ void ADIMPlayerState::ServerGiveName_Implementation()
 	GiveName();
 }
 
+bool ADIMPlayerState::ServerGiveName_Validate()
+{
+	return true;
+}
+
+void ADIMPlayerState::ServerOverrideName_Implementation(const FString& Nickname)
+{
+	SetPlayerName(Nickname);
+}
+
+bool ADIMPlayerState::ServerOverrideName_Validate(const FString& Nickname)
+{
+	return true;
+}
+
 void ADIMPlayerState::AddKill()
 {
 	NumKills++;
@@ -48,11 +82,6 @@ void ADIMPlayerState::AddKill()
 void ADIMPlayerState::AddDeath()
 {
 	NumDeaths++;
-}
-
-bool ADIMPlayerState::ServerGiveName_Validate()
-{
-	return true;
 }
 
 void ADIMPlayerState::AskTeamNumber()
@@ -67,6 +96,19 @@ void ADIMPlayerState::AskTeamNumber()
 		if (GS)
 		{
 			TeamNumber = GS->GetNextPlayerTeamNumber();
+			
+			TArray<AActor*> PlayerPawns;
+			UGameplayStatics::GetAllActorsOfClass(this, APawn::StaticClass(), PlayerPawns);
+			
+			for (int32 i = 0; i < PlayerPawns.Num(); i++)
+			{
+				AMainCharacter* Character = Cast<AMainCharacter>(PlayerPawns[i]);
+				if (Character && Character->PlayerState == this)
+				{
+					Character->UpdateTeamColor();
+					break;
+				}
+			}
 		}
 	}
 }

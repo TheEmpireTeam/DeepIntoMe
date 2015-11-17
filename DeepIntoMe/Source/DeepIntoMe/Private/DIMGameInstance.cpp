@@ -11,11 +11,5 @@ void UDIMGameInstance::SetNickname(FString NewNickname)
 
 FString UDIMGameInstance::GetNickname()
 {
-	if (Nickname.IsEmpty())
-	{
-		const FString Suffix = FString::FromInt(FMath::RandRange(0, 999));
-		Nickname = FPlatformProcess::ComputerName() + Suffix;
-	}
-
 	return Nickname;
 }

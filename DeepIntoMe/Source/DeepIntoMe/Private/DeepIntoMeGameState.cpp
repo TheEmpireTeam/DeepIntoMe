@@ -54,3 +54,8 @@ TArray<APlayerState*> ADeepIntoMeGameState::GetPlayersOfTeam(int32 TeamNumber)
 	
 	return Players;
 }
+
+void ADeepIntoMeGameState::StartNight_Implementation()
+{
+
+}

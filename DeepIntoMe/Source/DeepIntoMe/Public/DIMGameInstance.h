@@ -10,7 +10,6 @@ class UDIMGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
 	FString Nickname;
 
 public:

@@ -198,6 +198,10 @@ public:
 	void UseItem();
 	
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
+	void UpdateTeamColor();
+	
+	
 	void SetSpectatorMode();
 	
 };
