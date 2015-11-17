@@ -283,6 +283,11 @@ bool AMainCharacter::ServerSetRunningStatus_Validate(bool Running)
 	return true;
 }
 
+bool AMainCharacter::IsRunning()
+{
+	return bRunning;
+}
+
 void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 {
 	if (Weapon)
@@ -388,10 +393,10 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 				
 				OnDying();
 
-				AMainCharacter* Killer = Cast<AMainCharacter>(EventInstigator);
-				if (Killer)
+				// Score a kill to killer, if one exists
+				if (EventInstigator)
 				{
-					ADIMPlayerState* PS = Cast<ADIMPlayerState>(Killer->PlayerState);
+					ADIMPlayerState* PS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
 					if (PS)
 					{
 						PS->AddKill();
@@ -426,6 +431,12 @@ void AMainCharacter::OnDying()
 {
 	Health = 0;
 	bTestIsDead = true;
+	
+	ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
+	if (PS)
+	{
+		PS->AddDeath();
+	}
 
 	NetMulticastDropWeapon();
 	

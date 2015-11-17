@@ -5,11 +5,6 @@
 #include "DIMPlayerState.h"
 
 
-void ADeepIntoMeGameState::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()
 {
 	int32 MankindPlayers = 0, BarnyForcesPlayers = 0;
@@ -32,4 +27,30 @@ int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()
 	}
 	
 	return (BarnyForcesPlayers < MankindPlayers) ? 1 : 0;
+}
+
+TArray<APlayerState*> ADeepIntoMeGameState::GetMankindPlayers()
+{
+	return GetPlayersOfTeam(0);
+}
+	
+TArray<APlayerState*> ADeepIntoMeGameState::GetBailoshPlayers()
+{
+	return GetPlayersOfTeam(1);
+}
+
+TArray<APlayerState*> ADeepIntoMeGameState::GetPlayersOfTeam(int32 TeamNumber)
+{
+	TArray<APlayerState*> Players;
+	
+	for (int32 i = 0; i < PlayerArray.Num(); i++)
+	{
+		ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerArray[i]);
+		if (PS && PS->GetTeamNumber() == TeamNumber)
+		{
+			Players.Add(PS);
+		}
+	}
+	
+	return Players;
 }

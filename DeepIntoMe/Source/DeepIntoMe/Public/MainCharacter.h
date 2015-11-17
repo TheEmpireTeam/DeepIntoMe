@@ -142,6 +142,9 @@ public:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSetRunningStatus(bool Running);
+	
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	bool IsRunning();
 
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);

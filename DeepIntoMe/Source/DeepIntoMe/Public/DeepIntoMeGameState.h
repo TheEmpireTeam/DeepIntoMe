@@ -13,8 +13,14 @@ class ADeepIntoMeGameState : public AGameState
 	GENERATED_BODY()
 
 public:
-	virtual void BeginPlay() override;
-	
 	// Get team by automatic team filling mechanism
 	int32 GetNextPlayerTeamNumber();
+	
+	UFUNCTION(BlueprintCallable, Category = "Statistics")
+	TArray<APlayerState*> GetMankindPlayers();
+	
+	UFUNCTION(BlueprintCallable, Category = "Statistics")
+	TArray<APlayerState*> GetBailoshPlayers();
+	
+	TArray<APlayerState*> GetPlayersOfTeam(int32 TeamNumber);
 };

@@ -112,6 +112,13 @@ void AWeapon::HandleFiring()
 		{
 			GetWorldTimerManager().SetTimer(FiringHandleTimer, this, &AWeapon::HandleFiring, TimeBetweenShots, false);
 		}
+		/*else if (bIsAutomatic && AmmoLeftInClip == 0)
+		{
+			if (ParentCharacter)
+			{
+				ParentCharacter->Reload();
+			}
+		}*/
 	}
 }
 

@@ -8,7 +8,7 @@
 	
 AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
-	TArray<ADIMPlayerStart*> PreferredSpawns;
+	/*TArray<ADIMPlayerStart*> PreferredSpawns;
 
 	// Get all playerstart objects in level
 	TArray<AActor*> PlayerStarts;
@@ -26,13 +26,13 @@ AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 				
 			}
 		
-			/*ADIMPlayerState* PS = Cast<ADIMPlayerState>(Player->GetPawn()->PlayerState);
+			ADIMPlayerState* PS = Cast<ADIMPlayerState>(Player->GetPawn()->PlayerState);
 			if (PS && PS->GetTeamNumber() == TestStart->TeamNumber)
 			{
 				PreferredSpawns.Add(TestStart);
-			}*/
+			}
 		}
-	}
+	}*/
 	
 	/*if (PreferredSpawns.Num() > 0)
 	{
@@ -122,15 +122,5 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 FString ADIMGameMode::InitNewPlayer(class APlayerController* NewPlayerController, const TSharedPtr<const FUniqueNetId>& UniqueId, const FString& Options, const FString& Portal)
 {
 	return Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
-	/*FString Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
-
-	ADIMPlayerState* NewPlayerState = Cast<ADIMPlayerState>(NewPlayerController->PlayerState);
-	if (NewPlayerState)
-	{
-		//NewPlayerState->SetTeamNumber(0);
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, L"NewPlayerState");
-	}
-
-	return Result;*/
 }
 

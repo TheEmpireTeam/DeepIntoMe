@@ -45,6 +45,11 @@ void ADIMPlayerState::AddKill()
 	NumKills++;
 }
 
+void ADIMPlayerState::AddDeath()
+{
+	NumDeaths++;
+}
+
 bool ADIMPlayerState::ServerGiveName_Validate()
 {
 	return true;
@@ -79,6 +84,16 @@ bool ADIMPlayerState::ServerAskTeamNumber_Validate()
 int32 ADIMPlayerState::GetTeamNumber()
 {
 	return TeamNumber;
+}
+
+int32 ADIMPlayerState::GetKills()
+{
+	return NumKills;
+}
+	
+int32 ADIMPlayerState::GetDeaths()
+{
+	return NumDeaths;
 }
 
 void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

@@ -33,10 +33,18 @@ public:
 
 	void AddKill();
 	
+	void AddDeath();
+	
 	// Request team number from server
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAskTeamNumber();
 	
 	UFUNCTION(BlueprintCallable, Category = "Info")
 	int32 GetTeamNumber();
+	
+	UFUNCTION(BlueprintCallable, Category = "Info")
+	int32 GetKills();
+	
+	UFUNCTION(BlueprintCallable, Category = "Info")
+	int32 GetDeaths();
 };
