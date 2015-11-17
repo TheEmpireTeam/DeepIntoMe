@@ -459,8 +459,9 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 	Weapon = NewWeapon;
 	Weapon->SetParentCharacter(this);
 	Weapon->SetSimulatePhysics(false);
+	
 	//add branch for owner/replicated
-	//if (Controller->IsLocalController())
+	//if (IsLocallyControlled())
 	//{
 		Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
 	//}
