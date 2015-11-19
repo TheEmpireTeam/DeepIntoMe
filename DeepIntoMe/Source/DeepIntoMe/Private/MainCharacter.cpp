@@ -47,13 +47,6 @@ void AMainCharacter::BeginPlay()
 	}
 
 	StopRunning();
-	
-	//ServerInvokeColorChange();
-	
-	if (Role < ROLE_Authority)
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, TEXT("Client: Pawn BeginPlay"));
-	else
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Server: Pawn BeginPlay"));
 }
 
 bool AMainCharacter::IsMagazineEmpty()

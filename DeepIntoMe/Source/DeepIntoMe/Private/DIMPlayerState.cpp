@@ -13,15 +13,16 @@ void ADIMPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ResetScore();
-	
-	if (Role == ROLE_Authority)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("New player connected!"));
-	}	
-	
+	ResetScore();		
 	GiveName();
+	
 	AskTeamNumber();
+	
+	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+	if (GameState)
+	{
+		GameState->ClientRepaintOtherPlayerPawns();
+	}
 }
 
 void ADIMPlayerState::ResetScore()
@@ -94,10 +95,8 @@ void ADIMPlayerState::AskTeamNumber()
 	// Ask player team on server side
 	if (Role == ROLE_Authority)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Server AskTeamNumber"));
-	
 		ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
-		SetTeamNumber(GS->GetNextPlayerTeamNumber());
+		TeamNumber = GS->GetNextPlayerTeamNumber();
 	}
 }
 
@@ -128,53 +127,7 @@ int32 ADIMPlayerState::GetDeaths()
 
 void ADIMPlayerState::UpdatePlayerPawnColor()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Black, TEXT("UpdatePlayerPawnColor"));
-
-	TArray<AActor*> PlayerPawns;
-	UGameplayStatics::GetAllActorsOfClass(this, AMainCharacter::StaticClass(), PlayerPawns);
-
-	// Split the player starts into two arrays for preferred and fallback spawns
-	for (int32 i = 0; i < PlayerPawns.Num(); i++)
-	{
-		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(PlayerPawns[i]);
-		if (PlayerPawn && PlayerPawn->PlayerState == this)
-		{
-			PlayerPawn->ServerInvokeColorChange();
-		}
-	}
-
-	/*for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
-	{
-		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
-		if (Controller && Controller->PlayerState == this)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Owning controller found!"));
-				
-			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
-			if (PlayerPawn)
-			{
-				PlayerPawn->ServerInvokeColorChange();
-			}
-		}
-	}*/
-}
-
-void ADIMPlayerState::NetMulticastUpdatePlayerPawnColor_Implementation()
-{
-	UpdatePlayerPawnColor();
-}
-
-bool ADIMPlayerState::NetMulticastUpdatePlayerPawnColor_Validate()
-{
-	return true;
-}
-
-// Called, when team number update received from server
-void ADIMPlayerState::OnRep_TeamNumber()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::White, TEXT("Team Number Received: ") + FString::FromInt(TeamNumber));
-	
-	/*ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(GetWorld()->GetFirstPlayerController());
+	ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (Controller)
 	{
 		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
@@ -182,24 +135,24 @@ void ADIMPlayerState::OnRep_TeamNumber()
 		{
 			PlayerPawn->ServerInvokeColorChange();
 		}
-	}*/
+	}
+}
+
+// Called, when team number update received from server
+void ADIMPlayerState::OnRep_TeamNumber()
+{
+	UpdatePlayerPawnColor();
+	
+	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+	if (GameState)
+	{
+		GameState->ClientRepaintOtherPlayerPawns();
+	}
 }
 
 void ADIMPlayerState::SetTeamNumber(int32 NewTeamNumber)
 {
 	TeamNumber = NewTeamNumber;
-	
-	// Update player color on server, real team color will be soon replicated to client
-	UpdatePlayerPawnColor();
-	
-	/*if (Role < ROLE_Authority)
-	{
-		ServerSetTeamNumber(NewTeamNumber);
-	}
-	else
-	{
-		UpdatePlayerPawnColor();
-	}*/
 }
 
 void ADIMPlayerState::ServerSetTeamNumber_Implementation(int32 NewTeamNumber)

@@ -4,6 +4,7 @@
 #include "DeepIntoMeGameState.h"
 #include "DIMPlayerState.h"
 #include "DeepIntoMePlayerController.h"
+#include "MainCharacter.h"
 
 
 int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()
@@ -70,6 +71,24 @@ void ADeepIntoMeGameState::BroadcastKillMessage(const FString& KillerName, const
 		if (Controller)
 		{
 			Controller->ClientShowKillMessage(KillerName, VictimName);
+		}
+	}
+}
+
+void ADeepIntoMeGameState::ClientRepaintOtherPlayerPawns_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Black, TEXT("Client RepaintOtherPlayerPawns"));
+	
+	TArray<AActor*> PlayerPawns;
+	UGameplayStatics::GetAllActorsOfClass(this, AMainCharacter::StaticClass(), PlayerPawns);
+
+	for (int32 i = 0; i < PlayerPawns.Num(); i++)
+	{
+		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(PlayerPawns[i]);
+		if (PlayerPawn)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("PAWN"));
+			PlayerPawn->ServerInvokeColorChange();
 		}
 	}
 }

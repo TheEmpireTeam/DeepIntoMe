@@ -28,4 +28,7 @@ public:
 	void StartNight();
 	
 	void BroadcastKillMessage(const FString& KillerName, const FString& VictimName);
+	
+	UFUNCTION(Client, Reliable)
+	void ClientRepaintOtherPlayerPawns();
 };

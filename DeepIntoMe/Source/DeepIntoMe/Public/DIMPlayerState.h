@@ -60,9 +60,6 @@ public:
 	
 	void UpdatePlayerPawnColor();
 	
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void NetMulticastUpdatePlayerPawnColor();
-	
 	UFUNCTION()
 	void OnRep_TeamNumber();
 };
