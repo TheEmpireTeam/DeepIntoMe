@@ -5,6 +5,7 @@
 #include "DIMPlayerState.h"
 #include "DeepIntoMeHUD.h"
 #include "DeepIntoMePlayerController.h"
+#include "DeepIntoMeGameState.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -298,6 +299,7 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 	if (NewWeapon)
 	{
 		AttachWeaponToCharacter(NewWeapon);
+		NewWeapon->StopDestroyTimer();
 	}
 }
 
@@ -371,25 +373,15 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 
 			if (Health < 0)
 			{	
+				ADIMPlayerState* KillerPS = NULL;
+				ADIMPlayerState* VictimPS = NULL;
+			
 				if (EventInstigator)
 				{
-					ADIMPlayerState* KillerPS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
-					
+					KillerPS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
 					if (KillerPS && KillerPS != PlayerState)
 					{
 						KillerPS->AddKill();
-					}
-				
-					if (EventInstigator->GetPawn() != this)
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, EventInstigator->PlayerState->PlayerName);
-						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("WAS KILLED BY"));
-						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
-					}
-					else
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, PlayerState->PlayerName);
-						GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("HAS KILLED HIMSELF"));
 					}
 				}
 				else
@@ -398,23 +390,23 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 					GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("HAS BEEN KILLED BY UNDETECTED REASON"));
 				}
 				
-				ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
-				if (PS)
+				VictimPS = Cast<ADIMPlayerState>(PlayerState);
+				if (VictimPS)
 				{
-					PS->AddDeath();
+					VictimPS->AddDeath();
+				}
+				
+				// Broadcast kill info from server
+				ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+				if (GameState)
+				{
+					FString KillerName = (KillerPS) ? KillerPS->PlayerName : TEXT("");
+					FString VictimName = (VictimPS) ? VictimPS->PlayerName : TEXT("");
+					
+					GameState->BroadcastKillMessage(KillerName, VictimName);
 				}
 				
 				OnDying();
-
-				// Score a kill to killer, if one exists
-				/*if (EventInstigator)
-				{
-					ADIMPlayerState* KillerPS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
-					if (PS)
-					{
-						PS->AddKill();
-					}
-				}*/
 			}
 		}
 	}
@@ -486,6 +478,7 @@ void AMainCharacter::DropWeapon()
 		Weapon->DetachRootComponentFromParent(true);
 		Weapon->SetParentCharacter(NULL);	
 		Weapon->SetSimulatePhysics(true);
+		Weapon->StartDestroyTimer();
 		Weapon = NULL;
 	}
 }

@@ -73,6 +73,9 @@ private:
 	// Is weapon firing right now
 	UPROPERTY()
 	bool bFiring;
+	
+	// Is this weapon pending to be destroyed
+	bool bAutoDestroy;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Info")
 	FString InventoryName;
@@ -90,6 +93,8 @@ private:
 	float LastFireTime;
 	
 	FTimerHandle FiringHandleTimer;
+	
+	FTimerHandle AutoDestroyTimer;
 
 public:
 
@@ -165,6 +170,12 @@ public:
 	void StopFire();
 
 	bool GetFiringStatus();
+	
+	void StartDestroyTimer();
+	
+	void StopDestroyTimer();
+	
+	void AutoDestroy();
 	
 
 public:

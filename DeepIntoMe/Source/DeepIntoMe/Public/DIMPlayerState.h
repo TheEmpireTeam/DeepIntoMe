@@ -29,6 +29,8 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerGiveName();
 	
+	void OverrideName(const FString& Nickname);
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerOverrideName(const FString& Nickname);
 	

@@ -30,6 +30,9 @@ public:
 	
 	void RespawnPlayer();
 	
+	UFUNCTION(Client, Reliable)
+	void ClientShowKillMessage(const FString& KillerName, const FString& VictimName);
+	
 	UFUNCTION(Server, Reliable,WithValidation)
 	void ServerRespawnPlayer();
 	

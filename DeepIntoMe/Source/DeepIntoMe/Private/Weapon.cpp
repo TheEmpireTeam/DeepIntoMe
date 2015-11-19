@@ -17,6 +17,7 @@ AWeapon::AWeapon()
 	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
 	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
 	FireRate = 1;
+	bAutoDestroy = true;
 
 	//----Values only for debug---------
 	MaxOffset = 0.01;
@@ -55,6 +56,7 @@ void AWeapon::OnUsed(ACharacter* User)
 	AMainCharacter* MainUser = Cast<AMainCharacter>(User);
 	if (MainUser)
 	{
+		StopDestroyTimer();
 		MainUser->AddWeapon(this);
 	}
 }
@@ -229,6 +231,22 @@ void AWeapon::SetParentCharacter(AMainCharacter* NewParentCharacter)
 	ParentCharacter = NewParentCharacter;
 }
 
+void AWeapon::StartDestroyTimer()
+{
+	GetWorldTimerManager().SetTimer(AutoDestroyTimer, this, &AWeapon::AutoDestroy, 5, false);
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("StartDestroyTimer"));
+}
+	
+void AWeapon::StopDestroyTimer()
+{
+	GetWorldTimerManager().ClearTimer(AutoDestroyTimer);
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("StopDestroyTimer"));
+}
+
+void AWeapon::AutoDestroy()
+{
+	Destroy();
+}
 
 void AWeapon::OnPickUpBeginOverlap(AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {

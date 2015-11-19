@@ -3,6 +3,7 @@
 #include "DeepIntoMe.h"
 #include "DeepIntoMeGameState.h"
 #include "DIMPlayerState.h"
+#include "DeepIntoMePlayerController.h"
 
 
 int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()
@@ -58,4 +59,17 @@ TArray<APlayerState*> ADeepIntoMeGameState::GetPlayersOfTeam(int32 TeamNumber)
 void ADeepIntoMeGameState::StartNight_Implementation()
 {
 
+}
+
+// Function must be called on server in order to work correctly
+void ADeepIntoMeGameState::BroadcastKillMessage(const FString& KillerName, const FString& VictimName)
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller)
+		{
+			Controller->ClientShowKillMessage(KillerName, VictimName);
+		}
+	}
 }

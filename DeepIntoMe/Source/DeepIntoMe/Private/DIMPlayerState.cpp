@@ -12,24 +12,37 @@ void ADIMPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	/*if (Role == ROLE_Authority)
+	{
+		PlayerName = TEXT("");
+	}
+	
 	UDIMGameInstance* GameInstance = Cast<UDIMGameInstance>(GetWorld()->GetGameInstance());
-	if (GameInstance && !GameInstance->GetNickname().IsEmpty())
+	if (GameInstance)
 	{
 		FString Nick = GameInstance->GetNickname();
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("Nick: ") + Nick);
 	
-		if (Role < ROLE_Authority)
+		if (!Nick.IsEmpty())
 		{
-			ServerOverrideName(Nick);
+			if (Role < ROLE_Authority)
+			{
+				ServerOverrideName(Nick);
+			}
+			else
+			{
+				SetPlayerName(Nick);
+			}
 		}
-		else
-		{
-			SetPlayerName(Nick);
-		}
-	}
-	else
-	{
-		GiveName();
-	}
+	}*/
+	
+	//if (PlayerName.IsEmpty())
+	//{
+		
+	//}
+	
+	//OverrideName(L"");
+	GiveName();
 	
 	ResetScore();
 	AskTeamNumber();
@@ -62,6 +75,22 @@ void ADIMPlayerState::ServerGiveName_Implementation()
 bool ADIMPlayerState::ServerGiveName_Validate()
 {
 	return true;
+}
+
+void ADIMPlayerState::OverrideName(const FString& Nickname)
+{
+	if (Role < ROLE_Authority)
+	{
+		UDIMGameInstance* GameInstance = Cast<UDIMGameInstance>(GetWorld()->GetGameInstance());
+		if (GameInstance && !GameInstance->GetNickname().IsEmpty())
+		{
+			ServerOverrideName(GameInstance->GetNickname());
+		}
+	}
+	else
+	{
+		SetPlayerName(Nickname);
+	}
 }
 
 void ADIMPlayerState::ServerOverrideName_Implementation(const FString& Nickname)

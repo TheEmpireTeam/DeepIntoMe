@@ -18,5 +18,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player Info")
 	FString GetNickname();
-	
 };

@@ -26,4 +26,6 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, Category = "Gameplay")
 	void StartNight();
+	
+	void BroadcastKillMessage(const FString& KillerName, const FString& VictimName);
 };

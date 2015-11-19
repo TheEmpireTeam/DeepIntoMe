@@ -36,6 +36,15 @@ void ADeepIntoMePlayerController::ClientStartRespawnTimer_Implementation()
 	GetWorldTimerManager().SetTimer(RespawnTimer, this, &ADeepIntoMePlayerController::RespawnPlayer, SecondsToRespawn, false);
 }
 
+void ADeepIntoMePlayerController::ClientShowKillMessage_Implementation(const FString& KillerName, const FString& VictimName)
+{
+	ADeepIntoMeHUD* HUD = Cast<ADeepIntoMeHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->ShowKillMessage(KillerName, VictimName);
+	}
+}
+
 void ADeepIntoMePlayerController::RespawnPlayer()
 {
 	if (Role < ROLE_Authority)
