@@ -19,6 +19,8 @@ class ADeepIntoMePlayerController : public APlayerController
 public:
 
 	ADeepIntoMePlayerController();
+	
+	virtual void BeginPlay() override;
 
 	void SetSpectatorMode();
 	
@@ -33,9 +35,15 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientShowKillMessage(const FString& KillerName, const FString& VictimName);
 	
+	UFUNCTION(Client, Reliable)
+	void ClientUpdatePawnColor();
+	
 	UFUNCTION(Server, Reliable,WithValidation)
 	void ServerRespawnPlayer();
 	
 	UFUNCTION(BlueprintCallable, Category = "Respawn")
 	float GetSecondsToRespawn();
+	
+	UFUNCTION(Client, Reliable)
+	void ClientUpdatePlayersTeamColor();
 };

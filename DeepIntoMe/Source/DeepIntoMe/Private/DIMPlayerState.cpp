@@ -6,45 +6,21 @@
 #include "DIMGameInstance.h"
 #include "DeepIntoMeHUD.h"
 #include "MainCharacter.h"
+#include "DeepIntoMePlayerController.h"
 
 
 void ADIMPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	/*if (Role == ROLE_Authority)
-	{
-		PlayerName = TEXT("");
-	}
-	
-	UDIMGameInstance* GameInstance = Cast<UDIMGameInstance>(GetWorld()->GetGameInstance());
-	if (GameInstance)
-	{
-		FString Nick = GameInstance->GetNickname();
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("Nick: ") + Nick);
-	
-		if (!Nick.IsEmpty())
-		{
-			if (Role < ROLE_Authority)
-			{
-				ServerOverrideName(Nick);
-			}
-			else
-			{
-				SetPlayerName(Nick);
-			}
-		}
-	}*/
-	
-	//if (PlayerName.IsEmpty())
-	//{
-		
-	//}
-	
-	//OverrideName(L"");
-	GiveName();
-	
 	ResetScore();
+	
+	if (Role == ROLE_Authority)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("New player connected!"));
+	}	
+	
+	GiveName();
 	AskTeamNumber();
 }
 
@@ -115,30 +91,13 @@ void ADIMPlayerState::AddDeath()
 
 void ADIMPlayerState::AskTeamNumber()
 {
-	if (Role < ROLE_Authority)
+	// Ask player team on server side
+	if (Role == ROLE_Authority)
 	{
-		ServerAskTeamNumber();
-	}
-	else
-	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Server AskTeamNumber"));
+	
 		ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
-		if (GS)
-		{
-			TeamNumber = GS->GetNextPlayerTeamNumber();
-			
-			TArray<AActor*> PlayerPawns;
-			UGameplayStatics::GetAllActorsOfClass(this, APawn::StaticClass(), PlayerPawns);
-			
-			for (int32 i = 0; i < PlayerPawns.Num(); i++)
-			{
-				AMainCharacter* Character = Cast<AMainCharacter>(PlayerPawns[i]);
-				if (Character && Character->PlayerState == this)
-				{
-					Character->UpdateTeamColor();
-					break;
-				}
-			}
-		}
+		SetTeamNumber(GS->GetNextPlayerTeamNumber());
 	}
 }
 
@@ -167,6 +126,92 @@ int32 ADIMPlayerState::GetDeaths()
 	return NumDeaths;
 }
 
+void ADIMPlayerState::UpdatePlayerPawnColor()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Black, TEXT("UpdatePlayerPawnColor"));
+
+	TArray<AActor*> PlayerPawns;
+	UGameplayStatics::GetAllActorsOfClass(this, AMainCharacter::StaticClass(), PlayerPawns);
+
+	// Split the player starts into two arrays for preferred and fallback spawns
+	for (int32 i = 0; i < PlayerPawns.Num(); i++)
+	{
+		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(PlayerPawns[i]);
+		if (PlayerPawn && PlayerPawn->PlayerState == this)
+		{
+			PlayerPawn->ServerInvokeColorChange();
+		}
+	}
+
+	/*for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller && Controller->PlayerState == this)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Owning controller found!"));
+				
+			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+			if (PlayerPawn)
+			{
+				PlayerPawn->ServerInvokeColorChange();
+			}
+		}
+	}*/
+}
+
+void ADIMPlayerState::NetMulticastUpdatePlayerPawnColor_Implementation()
+{
+	UpdatePlayerPawnColor();
+}
+
+bool ADIMPlayerState::NetMulticastUpdatePlayerPawnColor_Validate()
+{
+	return true;
+}
+
+// Called, when team number update received from server
+void ADIMPlayerState::OnRep_TeamNumber()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5, FColor::White, TEXT("Team Number Received: ") + FString::FromInt(TeamNumber));
+	
+	/*ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (Controller)
+	{
+		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+		if (PlayerPawn)
+		{
+			PlayerPawn->ServerInvokeColorChange();
+		}
+	}*/
+}
+
+void ADIMPlayerState::SetTeamNumber(int32 NewTeamNumber)
+{
+	TeamNumber = NewTeamNumber;
+	
+	// Update player color on server, real team color will be soon replicated to client
+	UpdatePlayerPawnColor();
+	
+	/*if (Role < ROLE_Authority)
+	{
+		ServerSetTeamNumber(NewTeamNumber);
+	}
+	else
+	{
+		UpdatePlayerPawnColor();
+	}*/
+}
+
+void ADIMPlayerState::ServerSetTeamNumber_Implementation(int32 NewTeamNumber)
+{
+	SetTeamNumber(NewTeamNumber);
+}
+
+bool ADIMPlayerState::ServerSetTeamNumber_Validate(int32 NewTeamNumber)
+{
+	return true;
+}
+
 void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -174,4 +219,5 @@ void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>
 	DOREPLIFETIME(ADIMPlayerState, NumKills);
 	DOREPLIFETIME(ADIMPlayerState, NumDeaths);
 	DOREPLIFETIME(ADIMPlayerState, TeamNumber);
+	//DOREPLIFETIME_CONDITION(ADIMPlayerState, TeamNumber, COND_SkipOwner);
 }

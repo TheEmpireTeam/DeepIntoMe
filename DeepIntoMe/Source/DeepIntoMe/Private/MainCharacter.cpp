@@ -47,6 +47,13 @@ void AMainCharacter::BeginPlay()
 	}
 
 	StopRunning();
+	
+	//ServerInvokeColorChange();
+	
+	if (Role < ROLE_Authority)
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow, TEXT("Client: Pawn BeginPlay"));
+	else
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Server: Pawn BeginPlay"));
 }
 
 bool AMainCharacter::IsMagazineEmpty()
@@ -486,6 +493,27 @@ void AMainCharacter::DropWeapon()
 void AMainCharacter::NetMulticastDropWeapon_Implementation()
 {
 	DropWeapon();
+}
+
+void AMainCharacter::ServerInvokeColorChange_Implementation()
+{
+	// Invoke color change on all clients
+	NetMulticastUpdateTeamColor();
+}
+
+bool AMainCharacter::ServerInvokeColorChange_Validate()
+{
+	return true;
+}
+
+void AMainCharacter::NetMulticastUpdateTeamColor_Implementation()
+{
+	UpdateTeamColor();
+}
+
+bool AMainCharacter::NetMulticastUpdateTeamColor_Validate()
+{
+	return true;
 }
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

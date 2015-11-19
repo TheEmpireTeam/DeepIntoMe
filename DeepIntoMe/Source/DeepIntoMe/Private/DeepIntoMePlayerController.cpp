@@ -12,6 +12,12 @@ ADeepIntoMePlayerController::ADeepIntoMePlayerController()
 	SecondsToRespawn = 10.0f;
 }
 
+void ADeepIntoMePlayerController::BeginPlay()
+{
+	// Load player pawn colors on start
+	//ClientUpdatePlayersTeamColor();
+}
+
 void ADeepIntoMePlayerController::SetSpectatorMode()
 {
 	PlayerState->bIsSpectator = true;
@@ -45,6 +51,15 @@ void ADeepIntoMePlayerController::ClientShowKillMessage_Implementation(const FSt
 	}
 }
 
+void ADeepIntoMePlayerController::ClientUpdatePawnColor_Implementation()
+{
+	AMainCharacter* PlayerPawn = Cast<AMainCharacter>(GetPawn());
+	if (PlayerPawn)
+	{
+		PlayerPawn->UpdateTeamColor();
+	}
+}
+
 void ADeepIntoMePlayerController::RespawnPlayer()
 {
 	if (Role < ROLE_Authority)
@@ -73,4 +88,22 @@ bool ADeepIntoMePlayerController::ServerRespawnPlayer_Validate()
 float ADeepIntoMePlayerController::GetSecondsToRespawn()
 {
 	return (SecondsToRespawn - GetWorldTimerManager().GetTimerElapsed(RespawnTimer));
+}
+
+void ADeepIntoMePlayerController::ClientUpdatePlayersTeamColor_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("ClientUpdatePlayersTeamColor"));
+
+	TArray<AActor*> PlayerPawns;
+	UGameplayStatics::GetAllActorsOfClass(this, AMainCharacter::StaticClass(), PlayerPawns);
+
+	// Split the player starts into two arrays for preferred and fallback spawns
+	for (int32 i = 0; i < PlayerPawns.Num(); i++)
+	{
+		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(PlayerPawns[i]);
+		if (PlayerPawn)
+		{
+			PlayerPawn->UpdateTeamColor();
+		}
+	}
 }

@@ -234,13 +234,13 @@ void AWeapon::SetParentCharacter(AMainCharacter* NewParentCharacter)
 void AWeapon::StartDestroyTimer()
 {
 	GetWorldTimerManager().SetTimer(AutoDestroyTimer, this, &AWeapon::AutoDestroy, 5, false);
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("StartDestroyTimer"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("StartDestroyTimer"));
 }
 	
 void AWeapon::StopDestroyTimer()
 {
 	GetWorldTimerManager().ClearTimer(AutoDestroyTimer);
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("StopDestroyTimer"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("StopDestroyTimer"));
 }
 
 void AWeapon::AutoDestroy()

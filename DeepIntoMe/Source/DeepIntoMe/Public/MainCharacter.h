@@ -201,6 +201,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
 	void UpdateTeamColor();
 	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerInvokeColorChange();
+	
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	void NetMulticastUpdateTeamColor();
+	
 	
 	void SetSpectatorMode();
 	

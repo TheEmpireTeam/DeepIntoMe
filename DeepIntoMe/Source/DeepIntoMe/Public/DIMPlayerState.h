@@ -16,7 +16,7 @@ class ADIMPlayerState : public APlayerState
 	UPROPERTY(Replicated)
 	int32 NumDeaths;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_TeamNumber)
 	int32 TeamNumber;
 
 public:
@@ -40,6 +40,11 @@ public:
 	
 	void AddDeath();
 	
+	void SetTeamNumber(int32 NewTeamNumber);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetTeamNumber(int32 NewTeamNumber);
+	
 	// Request team number from server
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAskTeamNumber();
@@ -52,4 +57,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Info")
 	int32 GetDeaths();
+	
+	void UpdatePlayerPawnColor();
+	
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	void NetMulticastUpdatePlayerPawnColor();
+	
+	UFUNCTION()
+	void OnRep_TeamNumber();
 };
