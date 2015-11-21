@@ -46,4 +46,13 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void ClientUpdatePlayersTeamColor();
+	
+	UFUNCTION(Client, Reliable)
+	void ClientAddConsoleMessage(const FString& Message);
+	
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void BroadcastConsoleMessage(const FString& Message);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerBroadcastConsoleMessage(const FString& Message);
 };

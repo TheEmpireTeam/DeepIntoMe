@@ -58,11 +58,7 @@ void ADIMPlayerState::OverrideName(const FString& Nickname)
 {
 	if (Role < ROLE_Authority)
 	{
-		UDIMGameInstance* GameInstance = Cast<UDIMGameInstance>(GetWorld()->GetGameInstance());
-		if (GameInstance && !GameInstance->GetNickname().IsEmpty())
-		{
-			ServerOverrideName(GameInstance->GetNickname());
-		}
+		ServerOverrideName(Nickname);
 	}
 	else
 	{

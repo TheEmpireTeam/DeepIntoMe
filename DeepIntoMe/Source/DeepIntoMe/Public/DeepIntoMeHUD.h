@@ -27,7 +27,7 @@ public:
 
 	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")
-	void AddConsoleMessage(FString& Message);
+	void AddConsoleMessage(const FString& Message);
 	
 	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")

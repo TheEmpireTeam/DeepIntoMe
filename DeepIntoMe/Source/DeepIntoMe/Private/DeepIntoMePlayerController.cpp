@@ -107,3 +107,41 @@ void ADeepIntoMePlayerController::ClientUpdatePlayersTeamColor_Implementation()
 		}
 	}
 }
+
+void ADeepIntoMePlayerController::ClientAddConsoleMessage_Implementation(const FString& Message)
+{
+	ADeepIntoMeHUD* HUD = Cast<ADeepIntoMeHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->AddConsoleMessage(Message);
+	}
+}
+
+void ADeepIntoMePlayerController::BroadcastConsoleMessage(const FString& Message)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerBroadcastConsoleMessage(Message);
+	}
+	else
+	{
+		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+			if (Controller)
+			{
+				Controller->ClientAddConsoleMessage(Message);
+			}
+		}
+	}
+}
+
+void ADeepIntoMePlayerController::ServerBroadcastConsoleMessage_Implementation(const FString& Message)
+{
+	BroadcastConsoleMessage(Message);
+}
+
+bool ADeepIntoMePlayerController::ServerBroadcastConsoleMessage_Validate(const FString& Message)
+{
+	return true;
+}
