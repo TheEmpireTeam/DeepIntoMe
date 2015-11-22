@@ -79,3 +79,21 @@ void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 	}*/
 }
 
+void ADIMGameMode::StartMatch()
+{
+	Super::StartMatch();
+	
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("StartMatch"));
+	
+	if (Role == ROLE_Authority)
+	{
+		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+			if (Controller)
+			{
+				Controller->RespawnPlayer();
+			}
+		}
+	}
+}

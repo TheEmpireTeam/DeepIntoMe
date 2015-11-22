@@ -90,20 +90,34 @@ void ADeepIntoMeGameState::ClientRepaintOtherPlayerPawns_Implementation()
 	}
 }
 
-void ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Implementation()
+void ADeepIntoMeGameState::RepaintOtherPlayerPawns()
 {
-	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	if (Role < ROLE_Authority)
 	{
-		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
-		if (Controller)
+		ServerRepaintOtherPlayerPawns();
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("RepaintOtherPlayerPawns"));
+	
+		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 		{
-			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
-			if (PlayerPawn)
+			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+			if (Controller)
 			{
-				PlayerPawn->ServerInvokeColorChange();
+				AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+				if (PlayerPawn)
+				{
+					PlayerPawn->ServerInvokeColorChange();
+				}
 			}
 		}
 	}
+}
+
+void ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Implementation()
+{
+	RepaintOtherPlayerPawns();
 }
 
 bool ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Validate()

@@ -47,6 +47,9 @@ void AMainCharacter::BeginPlay()
 	}
 
 	StopRunning();
+	
+	// Paint pawn into default team color
+	UpdateTeamColor();
 }
 
 bool AMainCharacter::IsMagazineEmpty()
@@ -494,13 +497,7 @@ void AMainCharacter::NetMulticastDropWeapon_Implementation()
 
 void AMainCharacter::ServerInvokeColorChange_Implementation()
 {
-	// Invoke color change on all clients
-	ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
-	if (PS)
-	{
-		SetPawnColor((PS->GetTeamNumber() == 0) ? FLinearColor(0xFF, 0x80, 0x2A, 0xFF) : FLinearColor(0x31, 0x6C, 0xFF, 0xFF));
-	}
-	
+	// Invoke color change on all clients	
 	NetMulticastUpdateTeamColor();
 }
 
@@ -519,12 +516,12 @@ bool AMainCharacter::NetMulticastUpdateTeamColor_Validate()
 	return true;
 }
 
-void AMainCharacter::OnRep_PawnColor()
+/*void AMainCharacter::OnRep_PawnColor()
 {
 	UpdateTeamColor();
-}
+}*/
 
-void AMainCharacter::SetPawnColor(const FLinearColor& NewColor)
+/*void AMainCharacter::SetPawnColor(const FLinearColor& NewColor)
 {
 	if (Role < ROLE_Authority)
 	{
@@ -535,9 +532,9 @@ void AMainCharacter::SetPawnColor(const FLinearColor& NewColor)
 		PawnColor = NewColor;
 		UpdateTeamColor();
 	}
-}
+}*/
 
-void AMainCharacter::ServerSetPawnColor_Implementation(const FLinearColor& NewColor)
+/*void AMainCharacter::ServerSetPawnColor_Implementation(const FLinearColor& NewColor)
 {
 	SetPawnColor(NewColor);
 }
@@ -545,7 +542,7 @@ void AMainCharacter::ServerSetPawnColor_Implementation(const FLinearColor& NewCo
 bool AMainCharacter::ServerSetPawnColor_Validate(const FLinearColor& NewColor)
 {
 	return true;
-}
+}*/
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -560,5 +557,5 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainCharacter, bCrouching);
 	DOREPLIFETIME(AMainCharacter, bRunning);
 	
-	DOREPLIFETIME(AMainCharacter, PawnColor);
+	//DOREPLIFETIME(AMainCharacter, PawnColor);
 }

@@ -85,6 +85,12 @@ private:
 	float Damage;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	float MinDamage;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	float MaxDamage;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	bool bIsAutomatic;
 	
 	

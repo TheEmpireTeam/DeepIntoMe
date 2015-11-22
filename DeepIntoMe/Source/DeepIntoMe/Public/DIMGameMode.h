@@ -27,4 +27,6 @@ public:
 	virtual FString InitNewPlayer(class APlayerController* NewPlayerController, const TSharedPtr<const FUniqueNetId>& UniqueId, const FString& Options, const FString& Portal = TEXT(""));
 
 	virtual void StartNewPlayer(APlayerController* NewPlayer) override;
+	
+	virtual void StartMatch();
 };

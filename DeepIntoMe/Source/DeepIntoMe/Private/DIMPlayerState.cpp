@@ -18,11 +18,11 @@ void ADIMPlayerState::BeginPlay()
 	
 	AskTeamNumber();
 	
-	/*ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 	if (GameState)
 	{
-		GameState->ServerRepaintOtherPlayerPawns();
-	}*/
+		GameState->RepaintOtherPlayerPawns();
+	}
 }
 
 void ADIMPlayerState::ResetScore()
@@ -145,12 +145,12 @@ void ADIMPlayerState::UpdatePlayerPawnColor()
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
 		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
-		if (Controller && Controller->PlayerState == this)
+		if (Controller /*&& Controller->PlayerState == this*/)
 		{
 			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
 			if (PlayerPawn)
 			{
-				PlayerPawn->SetPawnColor((TeamNumber == 0) ? FLinearColor(0xFF, 0x80, 0x2A, 0xFF) : FLinearColor(0x31, 0x6C, 0xFF, 0xFF));
+				PlayerPawn->ServerInvokeColorChange();
 			}
 		}
 	}
@@ -169,12 +169,18 @@ void ADIMPlayerState::UpdatePlayerPawnColor()
 // Called, when team number update received from server
 void ADIMPlayerState::OnRep_TeamNumber()
 {
-	UpdatePlayerPawnColor();
+	//UpdatePlayerPawnColor();
 }
 
 void ADIMPlayerState::SetTeamNumber(int32 NewTeamNumber)
 {
+	if (Role < ROLE_Authority)
+	{
+		ServerSetTeamNumber(NewTeamNumber);
+	}
+
 	TeamNumber = NewTeamNumber;
+	UpdatePlayerPawnColor();
 }
 
 void ADIMPlayerState::ServerSetTeamNumber_Implementation(int32 NewTeamNumber)

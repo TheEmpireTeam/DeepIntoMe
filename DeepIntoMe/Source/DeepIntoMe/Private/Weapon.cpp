@@ -34,6 +34,11 @@ void AWeapon::BeginPlay()
 
 	AmmoLeftInClip = ClipCapacity;
 	TimeBetweenShots = 1 / FireRate;
+	
+	if (MinDamage < 0 || MaxDamage < 0 || MaxDamage < MinDamage)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Invalid weapon damage!"));
+	}
 }
 
 void AWeapon::PlayShootSound()
@@ -99,7 +104,9 @@ void AWeapon::HandleFiring()
 
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 		Projectile->SetInstigator(ParentCharacter);
-		Projectile->SetDamage(Damage);
+		
+		float DynamicDamage = FMath::FRandRange(MaxDamage, MinDamage);
+		Projectile->SetDamage(DynamicDamage);
 		
 		CurrentShotsCount++;
 		AmmoLeftInClip--;
