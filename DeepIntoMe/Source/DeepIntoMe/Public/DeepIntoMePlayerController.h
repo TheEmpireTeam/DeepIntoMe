@@ -41,6 +41,8 @@ public:
 	UFUNCTION(Server, Reliable,WithValidation)
 	void ServerRespawnPlayer();
 	
+	//virtual void ServerRestartPlayer_Implementation() override;
+	
 	UFUNCTION(BlueprintCallable, Category = "Respawn")
 	float GetSecondsToRespawn();
 	
@@ -55,4 +57,5 @@ public:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerBroadcastConsoleMessage(const FString& Message);
+	
 };

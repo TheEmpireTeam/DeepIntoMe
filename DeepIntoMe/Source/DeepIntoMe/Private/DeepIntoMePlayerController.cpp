@@ -85,6 +85,16 @@ bool ADeepIntoMePlayerController::ServerRespawnPlayer_Validate()
 	return true;
 }
 
+/*void ADeepIntoMePlayerController::ServerRestartPlayer_Implementation()
+{
+	Super::ServerRestartPlayer();
+	
+	ADIMGameMode* GameMode = Cast<ADIMGameMode>(UGameplayStatics::GetGameMode(GetWorld()));		
+	GameMode->RestartPlayer(this);
+		
+	ClientHUDStateChanged(EHUDState::Ingame);
+}*/
+
 float ADeepIntoMePlayerController::GetSecondsToRespawn()
 {
 	return (SecondsToRespawn - GetWorldTimerManager().GetTimerElapsed(RespawnTimer));

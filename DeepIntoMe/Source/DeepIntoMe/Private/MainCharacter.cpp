@@ -64,8 +64,8 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 {
 	Super::SetupPlayerInputComponent(InputComponent);
 
-	//InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	//InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	InputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);
 	InputComponent->BindAxis("LookRight", this, &AMainCharacter::LookRight);
@@ -371,7 +371,7 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 		{
 			Health -= DamageAmount;
 
-			if (Health < 0)
+			if (Health <= 0)
 			{	
 				ADIMPlayerState* KillerPS = NULL;
 				ADIMPlayerState* VictimPS = NULL;
@@ -407,6 +407,10 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 				}
 				
 				OnDying();
+			}
+			else
+			{
+				DamageTakenEvent();
 			}
 		}
 	}
@@ -491,6 +495,12 @@ void AMainCharacter::NetMulticastDropWeapon_Implementation()
 void AMainCharacter::ServerInvokeColorChange_Implementation()
 {
 	// Invoke color change on all clients
+	ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
+	if (PS)
+	{
+		SetPawnColor((PS->GetTeamNumber() == 0) ? FLinearColor(0xFF, 0x80, 0x2A, 0xFF) : FLinearColor(0x31, 0x6C, 0xFF, 0xFF));
+	}
+	
 	NetMulticastUpdateTeamColor();
 }
 
@@ -509,6 +519,34 @@ bool AMainCharacter::NetMulticastUpdateTeamColor_Validate()
 	return true;
 }
 
+void AMainCharacter::OnRep_PawnColor()
+{
+	UpdateTeamColor();
+}
+
+void AMainCharacter::SetPawnColor(const FLinearColor& NewColor)
+{
+	if (Role < ROLE_Authority)
+	{
+		ServerSetPawnColor(NewColor);
+	}
+	else
+	{
+		PawnColor = NewColor;
+		UpdateTeamColor();
+	}
+}
+
+void AMainCharacter::ServerSetPawnColor_Implementation(const FLinearColor& NewColor)
+{
+	SetPawnColor(NewColor);
+}
+
+bool AMainCharacter::ServerSetPawnColor_Validate(const FLinearColor& NewColor)
+{
+	return true;
+}
+
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -521,4 +559,6 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainCharacter, bAiming);
 	DOREPLIFETIME(AMainCharacter, bCrouching);
 	DOREPLIFETIME(AMainCharacter, bRunning);
+	
+	DOREPLIFETIME(AMainCharacter, PawnColor);
 }

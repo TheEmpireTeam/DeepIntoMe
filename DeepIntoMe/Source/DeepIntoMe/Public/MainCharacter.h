@@ -49,32 +49,37 @@ private:
 	float BaseRate;
 
 public:
-
-
-	UPROPERTY(BlueprintReadWrite, Category = Firing)
+	UPROPERTY(BlueprintReadWrite, Category = "Firing")
 	bool bFiring;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Firing")
 	bool bReloading;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Firing)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Firing")
 	bool bAiming;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Movement")
 	bool bCrouching;
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = Movement)
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Movement")
 	bool bRunning;
 
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float XLookRate;
 
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float YLookRate;
 	
 	// Test 'dead' flag
 	UPROPERTY(Replicated)
 	bool bTestIsDead;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_PawnColor, BlueprintReadOnly, Category = "Gameplay")
+	FLinearColor PawnColor;
+	
+private:
+	UFUNCTION()
+	void OnRep_PawnColor();
 
 public:
 	// Sets default values for this character's properties
@@ -145,6 +150,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsRunning();
+	
+	// Changes pawn body color
+	void SetPawnColor(const FLinearColor& NewColor);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetPawnColor(const FLinearColor& NewColor);
 
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);
@@ -196,6 +207,10 @@ public:
 
 	// For using items that currently avalaible
 	void UseItem();
+	
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
+	void DamageTakenEvent();
 	
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")

@@ -18,11 +18,11 @@ void ADIMPlayerState::BeginPlay()
 	
 	AskTeamNumber();
 	
-	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+	/*ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 	if (GameState)
 	{
 		GameState->ServerRepaintOtherPlayerPawns();
-	}
+	}*/
 }
 
 void ADIMPlayerState::ResetScore()
@@ -111,19 +111,7 @@ void ADIMPlayerState::AskTeamNumber()
 		ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 		TeamNumber = GS->GetNextPlayerTeamNumber();
 		
-		// Call only on server side
-		/*for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
-		{
-			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
-			if (Controller && Controller->PlayerState == this)
-			{
-				AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
-				if (PlayerPawn)
-				{
-					PlayerPawn->ServerInvokeColorChange();
-				}
-			}
-		}*/
+		UpdatePlayerPawnColor();
 	}
 }
 
@@ -154,7 +142,20 @@ int32 ADIMPlayerState::GetDeaths()
 
 void ADIMPlayerState::UpdatePlayerPawnColor()
 {
-	ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(GetWorld()->GetFirstPlayerController());
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller && Controller->PlayerState == this)
+		{
+			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+			if (PlayerPawn)
+			{
+				PlayerPawn->SetPawnColor((TeamNumber == 0) ? FLinearColor(0xFF, 0x80, 0x2A, 0xFF) : FLinearColor(0x31, 0x6C, 0xFF, 0xFF));
+			}
+		}
+	}
+
+	/*ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (Controller)
 	{
 		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
@@ -162,7 +163,7 @@ void ADIMPlayerState::UpdatePlayerPawnColor()
 		{
 			PlayerPawn->ServerInvokeColorChange();
 		}
-	}
+	}*/
 }
 
 // Called, when team number update received from server

@@ -51,9 +51,11 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 {
 	Super::RestartPlayer(NewPlayer);
 	
+	// Repaint your respawned pawn on all clients
 	AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
 	if (Pawn)
 	{
+		//Pawn->SetPawnColor((TeamNumber == 0) ? FLinearColor(0xFF, 0x80, 0x2A, 0xFF) : FLinearColor(0x31, 0x6C, 0xFF, 0xFF));
 		Pawn->ServerInvokeColorChange();
 	}
 }
@@ -67,10 +69,13 @@ void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 {
 	Super::StartNewPlayer(NewPlayer);
 	
-	AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("StartNewPlayer"));
+	
+	// Change your color
+	/*AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
 	if (Pawn)
 	{
 		Pawn->ServerInvokeColorChange();
-	}
+	}*/
 }
 

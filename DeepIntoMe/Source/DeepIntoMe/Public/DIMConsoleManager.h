@@ -47,5 +47,6 @@ public:
 	void SuicideCommand(TArray<FString>& CommandParams);
 	void ChangeNameCommand(TArray<FString>& CommandParams);
 	void StatsCommand(TArray<FString>& CommandParams);
+	void RespawnCommand(TArray<FString>& CommandParams);
 	
 };

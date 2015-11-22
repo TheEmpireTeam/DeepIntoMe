@@ -21,6 +21,8 @@ void UDIMConsoleManager::InitCommandsList()
 	CommandExecutors.Add(&UDIMConsoleManager::ChangeNameCommand);
 	CommandsList.Add(TEXT("stats"));
 	CommandExecutors.Add(&UDIMConsoleManager::StatsCommand);
+	CommandsList.Add(TEXT("respawn"));
+	CommandExecutors.Add(&UDIMConsoleManager::RespawnCommand);
 }
 
 void UDIMConsoleManager::SetOwner(ADeepIntoMePlayerController* Controller)
@@ -91,17 +93,23 @@ void UDIMConsoleManager::ChangeNameCommand(TArray<FString>& CommandParams)
 
 void UDIMConsoleManager::StatsCommand(TArray<FString>& CommandParams)
 {
-	if (!OwningController)
+	if (OwningController)
 	{
-		return;
-	}
-	
-	ADIMPlayerState* PlayerState = Cast<ADIMPlayerState>(OwningController->PlayerState);
-	if (PlayerState)
-	{
-		if (CommandParams[1] == TEXT("clear"))
+		ADIMPlayerState* PlayerState = Cast<ADIMPlayerState>(OwningController->PlayerState);
+		if (PlayerState)
 		{
-			PlayerState->ResetScore();
-		}
+			if (CommandParams[1] == TEXT("clear"))
+			{
+				PlayerState->ResetScore();
+			}
+		}		
+	}
+}
+
+void UDIMConsoleManager::RespawnCommand(TArray<FString>& CommandParams)
+{
+	if (OwningController)
+	{
+		OwningController->RespawnPlayer();
 	}
 }
