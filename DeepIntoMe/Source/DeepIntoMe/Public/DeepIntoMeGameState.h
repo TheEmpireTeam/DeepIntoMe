@@ -31,4 +31,7 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void ClientRepaintOtherPlayerPawns();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRepaintOtherPlayerPawns();
 };

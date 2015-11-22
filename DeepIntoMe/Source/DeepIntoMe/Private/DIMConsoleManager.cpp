@@ -16,12 +16,11 @@ UDIMConsoleManager::UDIMConsoleManager()
 void UDIMConsoleManager::InitCommandsList()
 {
 	CommandsList.Add(TEXT("suicide"));
-	FCommandExecutor SuicideExecutor = &UDIMConsoleManager::SuicideCommand;
-	CommandExecutors.Add(SuicideExecutor);
-	
+	CommandExecutors.Add(&UDIMConsoleManager::SuicideCommand);
 	CommandsList.Add(TEXT("name"));
-	FCommandExecutor ChangeNameExecutor = &UDIMConsoleManager::ChangeNameCommand;
-	CommandExecutors.Add(ChangeNameExecutor);
+	CommandExecutors.Add(&UDIMConsoleManager::ChangeNameCommand);
+	CommandsList.Add(TEXT("stats"));
+	CommandExecutors.Add(&UDIMConsoleManager::StatsCommand);
 }
 
 void UDIMConsoleManager::SetOwner(ADeepIntoMePlayerController* Controller)
@@ -90,3 +89,19 @@ void UDIMConsoleManager::ChangeNameCommand(TArray<FString>& CommandParams)
 	}
 }
 
+void UDIMConsoleManager::StatsCommand(TArray<FString>& CommandParams)
+{
+	if (!OwningController)
+	{
+		return;
+	}
+	
+	ADIMPlayerState* PlayerState = Cast<ADIMPlayerState>(OwningController->PlayerState);
+	if (PlayerState)
+	{
+		if (CommandParams[1] == TEXT("clear"))
+		{
+			PlayerState->ResetScore();
+		}
+	}
+}

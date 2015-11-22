@@ -21,14 +21,31 @@ void ADIMPlayerState::BeginPlay()
 	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 	if (GameState)
 	{
-		GameState->ClientRepaintOtherPlayerPawns();
+		GameState->ServerRepaintOtherPlayerPawns();
 	}
 }
 
 void ADIMPlayerState::ResetScore()
 {
-	NumKills = 0;
-	NumDeaths = 0;
+	if (Role < ROLE_Authority)
+	{
+		ServerResetScore();
+	}
+	else
+	{
+		NumKills = 0;
+		NumDeaths = 0;
+	}
+}
+
+void ADIMPlayerState::ServerResetScore_Implementation()
+{
+	ResetScore();
+}
+
+bool ADIMPlayerState::ServerResetScore_Validate()
+{
+	return true;
 }
 
 void ADIMPlayerState::GiveName()
@@ -93,6 +110,20 @@ void ADIMPlayerState::AskTeamNumber()
 	{
 		ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 		TeamNumber = GS->GetNextPlayerTeamNumber();
+		
+		// Call only on server side
+		/*for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+			if (Controller && Controller->PlayerState == this)
+			{
+				AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+				if (PlayerPawn)
+				{
+					PlayerPawn->ServerInvokeColorChange();
+				}
+			}
+		}*/
 	}
 }
 
@@ -138,12 +169,6 @@ void ADIMPlayerState::UpdatePlayerPawnColor()
 void ADIMPlayerState::OnRep_TeamNumber()
 {
 	UpdatePlayerPawnColor();
-	
-	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
-	if (GameState)
-	{
-		GameState->ClientRepaintOtherPlayerPawns();
-	}
 }
 
 void ADIMPlayerState::SetTeamNumber(int32 NewTeamNumber)
@@ -168,5 +193,4 @@ void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>
 	DOREPLIFETIME(ADIMPlayerState, NumKills);
 	DOREPLIFETIME(ADIMPlayerState, NumDeaths);
 	DOREPLIFETIME(ADIMPlayerState, TeamNumber);
-	//DOREPLIFETIME_CONDITION(ADIMPlayerState, TeamNumber, COND_SkipOwner);
 }

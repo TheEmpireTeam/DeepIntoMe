@@ -20,7 +20,11 @@ class DEEPINTOME_API ADIMGameMode : public AGameMode
 public:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	
+	//virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
+	
 	virtual void RestartPlayer(class AController* NewPlayer) override;
 	
 	virtual FString InitNewPlayer(class APlayerController* NewPlayerController, const TSharedPtr<const FUniqueNetId>& UniqueId, const FString& Options, const FString& Portal = TEXT(""));
+
+	virtual void StartNewPlayer(APlayerController* NewPlayer) override;
 };

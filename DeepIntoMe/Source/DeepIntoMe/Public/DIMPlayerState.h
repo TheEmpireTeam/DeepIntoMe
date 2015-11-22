@@ -24,6 +24,9 @@ public:
 
 	void ResetScore();
 	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerResetScore();
+	
 	void GiveName();
 	
 	UFUNCTION(Server, Reliable, WithValidation)

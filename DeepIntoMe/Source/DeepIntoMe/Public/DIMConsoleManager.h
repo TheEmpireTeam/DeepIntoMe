@@ -46,5 +46,6 @@ public:
 	// Command executors
 	void SuicideCommand(TArray<FString>& CommandParams);
 	void ChangeNameCommand(TArray<FString>& CommandParams);
+	void StatsCommand(TArray<FString>& CommandParams);
 	
 };

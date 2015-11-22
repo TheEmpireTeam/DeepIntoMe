@@ -77,8 +77,6 @@ void ADeepIntoMeGameState::BroadcastKillMessage(const FString& KillerName, const
 
 void ADeepIntoMeGameState::ClientRepaintOtherPlayerPawns_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Black, TEXT("Client RepaintOtherPlayerPawns"));
-	
 	TArray<AActor*> PlayerPawns;
 	UGameplayStatics::GetAllActorsOfClass(this, AMainCharacter::StaticClass(), PlayerPawns);
 
@@ -87,8 +85,28 @@ void ADeepIntoMeGameState::ClientRepaintOtherPlayerPawns_Implementation()
 		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(PlayerPawns[i]);
 		if (PlayerPawn)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, TEXT("PAWN"));
 			PlayerPawn->ServerInvokeColorChange();
 		}
 	}
+}
+
+void ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Implementation()
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller)
+		{
+			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+			if (PlayerPawn)
+			{
+				PlayerPawn->ServerInvokeColorChange();
+			}
+		}
+	}
+}
+
+bool ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Validate()
+{
+	return true;
 }
