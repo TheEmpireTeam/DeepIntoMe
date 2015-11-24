@@ -372,7 +372,10 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 	{
 		if (!bTestIsDead)
 		{
+			DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 			Health -= DamageAmount;
+			
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("DamageAmount : ") + FString::SanitizeFloat(DamageAmount));
 
 			if (Health <= 0)
 			{	

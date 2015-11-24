@@ -29,16 +29,17 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 {
 	if (OtherActor != this)
 	{
-		if (Hit.GetActor() != NULL)
+		if (Hit.GetActor())
 		{
-			//if (GEngine != NULL)
-				//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, OtherComp->GetName());
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, OtherComp->GetName());
 
 			FPointDamageEvent PointDmg;
 			PointDmg.ShotDirection = GetActorRotation().Vector();
+			PointDmg.Damage = Damage;
 
-			if (Role == ROLE_Authority && Instigator)
-				OtherActor->TakeDamage(Damage, PointDmg, Instigator->Controller, this);
+			//if (Role == ROLE_Authority && Instigator)
+			OtherActor->TakeDamage(PointDmg.Damage, PointDmg, (Instigator) ? Instigator->Controller : NULL, this);
 		}
 
 		Destroy();
