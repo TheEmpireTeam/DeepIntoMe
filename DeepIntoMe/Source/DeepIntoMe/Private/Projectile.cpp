@@ -31,9 +31,6 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 	{
 		if (Hit.GetActor())
 		{
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, OtherComp->GetName());
-
 			FPointDamageEvent PointDmg;
 			PointDmg.ShotDirection = GetActorRotation().Vector();
 			PointDmg.Damage = Damage;

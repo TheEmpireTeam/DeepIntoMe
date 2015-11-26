@@ -71,15 +71,8 @@ public:
 	float YLookRate;
 	
 	// Test 'dead' flag
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_bTestIsDead)
 	bool bTestIsDead;
-	
-	/*UPROPERTY(ReplicatedUsing = OnRep_PawnColor, BlueprintReadOnly, Category = "Gameplay")
-	FLinearColor PawnColor;*/
-	
-private:
-	/*UFUNCTION()
-	void OnRep_PawnColor();*/
 
 public:
 	// Sets default values for this character's properties
@@ -150,12 +143,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsRunning();
-	
-	// Changes pawn body color
-	//void SetPawnColor(const FLinearColor& NewColor);
-	
-	//UFUNCTION(Server, Reliable, WithValidation)
-	//void ServerSetPawnColor(const FLinearColor& NewColor);
 
 	//Attaches weapon to a character and set it to not simulate physics and not to overlap
 	void AttachWeaponToCharacter(AWeapon* NewWeapon);
@@ -224,5 +211,8 @@ public:
 	
 	
 	void SetSpectatorMode();
+	
+	UFUNCTION()
+	void OnRep_bTestIsDead();
 	
 };

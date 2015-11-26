@@ -374,8 +374,6 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 		{
 			DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 			Health -= DamageAmount;
-			
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("DamageAmount : ") + FString::SanitizeFloat(DamageAmount));
 
 			if (Health <= 0)
 			{	
@@ -449,6 +447,44 @@ void AMainCharacter::OnDying()
 
 	NetMulticastDropWeapon();
 	
+	
+	
+	// RAGDOLL TEST
+	/* Disable all collision on capsule */
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	USkeletalMeshComponent* Mesh3P = GetMesh();
+	if (Mesh3P)
+	{
+		Mesh3P->SetCollisionProfileName(TEXT("Ragdoll"));
+	}
+	SetActorEnableCollision(true);
+
+	
+	//USkeletalMeshComponent* Mesh3P = GetMesh();
+	if (Mesh3P)
+	{
+		Mesh3P->SetAllBodiesSimulatePhysics(true);
+		Mesh3P->SetSimulatePhysics(true);
+		Mesh3P->WakeAllRigidBodies();
+		Mesh3P->bBlendPhysics = true;
+	}
+
+	UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent());
+	if (CharacterComp)
+	{
+		CharacterComp->StopMovementImmediately();
+		CharacterComp->DisableMovement();
+		CharacterComp->SetComponentTickEnabled(false);
+	}
+	
+	const float TimeToRemoveCorpse = 30.0f;
+	SetLifeSpan(TimeToRemoveCorpse);
+	
+	
+	
 	SetSpectatorMode();
 }
 
@@ -459,8 +495,6 @@ void AMainCharacter::SetSpectatorMode()
 	{
 		PlayerController->SetSpectatorMode();
 	}
-			
-	Destroy();
 }
 
 void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
@@ -519,33 +553,45 @@ bool AMainCharacter::NetMulticastUpdateTeamColor_Validate()
 	return true;
 }
 
-/*void AMainCharacter::OnRep_PawnColor()
+void AMainCharacter::OnRep_bTestIsDead()
 {
-	UpdateTeamColor();
-}*/
-
-/*void AMainCharacter::SetPawnColor(const FLinearColor& NewColor)
-{
-	if (Role < ROLE_Authority)
+	if (bTestIsDead)
 	{
-		ServerSetPawnColor(NewColor);
-	}
-	else
-	{
-		PawnColor = NewColor;
-		UpdateTeamColor();
-	}
-}*/
+		// RAGDOLL TEST
+		/* Disable all collision on capsule */
+		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 
-/*void AMainCharacter::ServerSetPawnColor_Implementation(const FLinearColor& NewColor)
-{
-	SetPawnColor(NewColor);
+		USkeletalMeshComponent* Mesh3P = GetMesh();
+		if (Mesh3P)
+		{
+			Mesh3P->SetCollisionProfileName(TEXT("Ragdoll"));
+		}
+		SetActorEnableCollision(true);
+
+		
+		//USkeletalMeshComponent* Mesh3P = GetMesh();
+		if (Mesh3P)
+		{
+			Mesh3P->SetAllBodiesSimulatePhysics(true);
+			Mesh3P->SetSimulatePhysics(true);
+			Mesh3P->WakeAllRigidBodies();
+			Mesh3P->bBlendPhysics = true;
+		}
+
+		UCharacterMovementComponent* CharacterComp = Cast<UCharacterMovementComponent>(GetMovementComponent());
+		if (CharacterComp)
+		{
+			CharacterComp->StopMovementImmediately();
+			CharacterComp->DisableMovement();
+			CharacterComp->SetComponentTickEnabled(false);
+		}
+		
+		const float TimeToRemoveCorpse = 30.0f;
+		SetLifeSpan(TimeToRemoveCorpse);
+	}
 }
-
-bool AMainCharacter::ServerSetPawnColor_Validate(const FLinearColor& NewColor)
-{
-	return true;
-}*/
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
