@@ -34,21 +34,18 @@ AExplosiveActor::AExplosiveActor(const FObjectInitializer& ObjectInitializer)
 	bExploded = false;
 }
 
-void AExplosiveActor::Explode()
+void AExplosiveActor::Explode(class AController* EventInstigator)
 {
 	// Runs on all clients (NetMulticast)
 	SimulateExplosion();
 
 	// Apply damage to player, enemies and environmental objects
 	TArray<AActor*> IgnoreActors;
-	//UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoreActors, this, nullptr);
 	UGameplayStatics::ApplyRadialDamageWithFalloff(
-		this, ExplosionDamage, 15.0f ,
+		this, ExplosionDamage, 15.0f,
 		GetActorLocation(), ExplosionRadius / 4.0f, ExplosionRadius, 0.1f,
-		DamageType, IgnoreActors, this, nullptr
+		DamageType, IgnoreActors, this, EventInstigator
 	);
-
-	//DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 32, FColor::Red, false, 1.5f);
 
 	/* Allow clients to show FX before deleting */
 	SetLifeSpan(3.0f);
@@ -86,7 +83,7 @@ float AExplosiveActor::TakeDamage(float Damage, struct FDamageEvent const& Damag
 		if (Health <= 0)
 		{
 			bExploded = true;
-			Explode();
+			Explode(EventInstigator);
 		}
 	}
 

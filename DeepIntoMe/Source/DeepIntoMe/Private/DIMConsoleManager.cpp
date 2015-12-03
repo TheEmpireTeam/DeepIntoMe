@@ -23,6 +23,8 @@ void UDIMConsoleManager::InitCommandsList()
 	CommandExecutors.Add(&UDIMConsoleManager::StatsCommand);
 	CommandsList.Add(TEXT("respawn"));
 	CommandExecutors.Add(&UDIMConsoleManager::RespawnCommand);
+	CommandsList.Add(TEXT("game_mode"));
+	CommandExecutors.Add(&UDIMConsoleManager::SetGameModeCommand);
 }
 
 void UDIMConsoleManager::SetOwner(ADeepIntoMePlayerController* Controller)
@@ -111,5 +113,20 @@ void UDIMConsoleManager::RespawnCommand(TArray<FString>& CommandParams)
 	if (OwningController)
 	{
 		OwningController->RespawnPlayer();
+	}
+}
+
+void UDIMConsoleManager::SetGameModeCommand(TArray<FString>& CommandParams)
+{
+	if (CommandParams.Num() > 1)
+	{
+		if (CommandParams[1] == TEXT("deathmatch"))
+		{
+			// Enable deathmatch rules
+		}
+		else if (CommandParams[1] == TEXT("team_deathmatch"))
+		{
+			// Enable team deathmatch rules
+		}
 	}
 }

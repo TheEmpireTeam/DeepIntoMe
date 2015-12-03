@@ -47,9 +47,6 @@ void AMainCharacter::BeginPlay()
 	}
 
 	StopRunning();
-	
-	// Paint pawn into default team color
-	UpdateTeamColor();
 }
 
 bool AMainCharacter::IsMagazineEmpty()
@@ -463,7 +460,6 @@ void AMainCharacter::OnDying()
 	SetActorEnableCollision(true);
 
 	
-	//USkeletalMeshComponent* Mesh3P = GetMesh();
 	if (Mesh3P)
 	{
 		Mesh3P->SetAllBodiesSimulatePhysics(true);
@@ -480,7 +476,7 @@ void AMainCharacter::OnDying()
 		CharacterComp->SetComponentTickEnabled(false);
 	}
 	
-	const float TimeToRemoveCorpse = 30.0f;
+	const float TimeToRemoveCorpse = 10.0f;
 	SetLifeSpan(TimeToRemoveCorpse);
 	
 	
@@ -535,7 +531,12 @@ void AMainCharacter::NetMulticastDropWeapon_Implementation()
 void AMainCharacter::ServerInvokeColorChange_Implementation()
 {
 	// Invoke color change on all clients	
-	NetMulticastUpdateTeamColor();
+	ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerState);
+	if (PS)
+	{
+		// Get authoritative team number on server side & send it to all clients
+		NetMulticastUpdateTeamColor(PS->GetTeamNumber());
+	}
 }
 
 bool AMainCharacter::ServerInvokeColorChange_Validate()
@@ -543,12 +544,12 @@ bool AMainCharacter::ServerInvokeColorChange_Validate()
 	return true;
 }
 
-void AMainCharacter::NetMulticastUpdateTeamColor_Implementation()
+void AMainCharacter::NetMulticastUpdateTeamColor_Implementation(const int32 TeamNumber)
 {
-	UpdateTeamColor();
+	UpdateTeamColor(TeamNumber);
 }
 
-bool AMainCharacter::NetMulticastUpdateTeamColor_Validate()
+bool AMainCharacter::NetMulticastUpdateTeamColor_Validate(const int32 TeamNumber)
 {
 	return true;
 }
@@ -571,7 +572,6 @@ void AMainCharacter::OnRep_bTestIsDead()
 		SetActorEnableCollision(true);
 
 		
-		//USkeletalMeshComponent* Mesh3P = GetMesh();
 		if (Mesh3P)
 		{
 			Mesh3P->SetAllBodiesSimulatePhysics(true);
@@ -605,6 +605,4 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AMainCharacter, bAiming);
 	DOREPLIFETIME(AMainCharacter, bCrouching);
 	DOREPLIFETIME(AMainCharacter, bRunning);
-	
-	//DOREPLIFETIME(AMainCharacter, PawnColor);
 }

@@ -201,13 +201,13 @@ public:
 	
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
-	void UpdateTeamColor();
+	void UpdateTeamColor(const int32 TeamNumber);
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerInvokeColorChange();
 	
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void NetMulticastUpdateTeamColor();
+	void NetMulticastUpdateTeamColor(const int32 TeamNumber);
 	
 	
 	void SetSpectatorMode();

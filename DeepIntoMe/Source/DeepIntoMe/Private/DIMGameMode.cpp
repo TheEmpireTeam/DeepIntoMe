@@ -10,8 +10,6 @@
 	
 AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Green, TEXT("ChoosePlayerStart"));
-
 	TArray<ADIMPlayerStart*> PreferredSpawns;
 
 	// Get all playerstart objects in level
@@ -34,18 +32,12 @@ AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	
 	if (PreferredSpawns.Num() > 0)
 	{
-		return PreferredSpawns[FMath::RandRange(0, PreferredSpawns.Num() - 1)];
+		int32 RandomIndex = FMath::RandRange(0, PreferredSpawns.Num() - 1);
+		return PreferredSpawns[RandomIndex];
 	}
 	
 	return Super::ChoosePlayerStart_Implementation(Player);
 }
-
-/*AActor* ADIMGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Green, TEXT("FindPlayerStart"));
-	return Super::FindPlayerStart(Player, IncomingName);
-}*/
-
 
 void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 {
@@ -55,7 +47,13 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 	AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
 	if (Pawn)
 	{
-		//Pawn->SetPawnColor((TeamNumber == 0) ? FLinearColor(0xFF, 0x80, 0x2A, 0xFF) : FLinearColor(0x31, 0x6C, 0xFF, 0xFF));
+		AActor* SpawnPoint = ChoosePlayerStart(NewPlayer);
+		if (SpawnPoint)
+		{
+			Pawn->SetActorLocation(SpawnPoint->GetActorLocation());
+			Pawn->SetActorRotation(SpawnPoint->GetActorRotation());
+		}
+		
 		Pawn->ServerInvokeColorChange();
 	}
 }
@@ -68,32 +66,9 @@ FString ADIMGameMode::InitNewPlayer(class APlayerController* NewPlayerController
 void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 {
 	Super::StartNewPlayer(NewPlayer);
-	
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("StartNewPlayer"));
-	
-	// Change your color
-	/*AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
-	if (Pawn)
-	{
-		Pawn->ServerInvokeColorChange();
-	}*/
 }
 
 void ADIMGameMode::StartMatch()
 {
 	Super::StartMatch();
-	
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("StartMatch"));
-	
-	if (Role == ROLE_Authority)
-	{
-		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
-		{
-			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
-			if (Controller)
-			{
-				Controller->RespawnPlayer();
-			}
-		}
-	}
 }

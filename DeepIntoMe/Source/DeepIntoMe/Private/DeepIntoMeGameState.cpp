@@ -98,8 +98,6 @@ void ADeepIntoMeGameState::RepaintOtherPlayerPawns()
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("RepaintOtherPlayerPawns"));
-	
 		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 		{
 			ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);

@@ -53,11 +53,11 @@ void ADeepIntoMePlayerController::ClientShowKillMessage_Implementation(const FSt
 
 void ADeepIntoMePlayerController::ClientUpdatePawnColor_Implementation()
 {
-	AMainCharacter* PlayerPawn = Cast<AMainCharacter>(GetPawn());
+	/*AMainCharacter* PlayerPawn = Cast<AMainCharacter>(GetPawn());
 	if (PlayerPawn)
 	{
 		PlayerPawn->UpdateTeamColor();
-	}
+	}*/
 }
 
 void ADeepIntoMePlayerController::RespawnPlayer()
@@ -102,7 +102,7 @@ float ADeepIntoMePlayerController::GetSecondsToRespawn()
 
 void ADeepIntoMePlayerController::ClientUpdatePlayersTeamColor_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("ClientUpdatePlayersTeamColor"));
+	/*GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("ClientUpdatePlayersTeamColor"));
 
 	TArray<AActor*> PlayerPawns;
 	UGameplayStatics::GetAllActorsOfClass(this, AMainCharacter::StaticClass(), PlayerPawns);
@@ -115,7 +115,7 @@ void ADeepIntoMePlayerController::ClientUpdatePlayersTeamColor_Implementation()
 		{
 			PlayerPawn->UpdateTeamColor();
 		}
-	}
+	}*/
 }
 
 void ADeepIntoMePlayerController::ClientAddConsoleMessage_Implementation(const FString& Message)

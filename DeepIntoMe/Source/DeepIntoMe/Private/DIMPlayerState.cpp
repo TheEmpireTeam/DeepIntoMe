@@ -16,7 +16,10 @@ void ADIMPlayerState::BeginPlay()
 	ResetScore();		
 	GiveName();
 	
-	AskTeamNumber();
+	if (Role == ROLE_Authority)
+	{
+		AskTeamNumber();
+	}
 	
 	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 	if (GameState)
@@ -106,9 +109,9 @@ void ADIMPlayerState::AddDeath()
 void ADIMPlayerState::AskTeamNumber()
 {
 	// Ask player team on server side
-	if (Role == ROLE_Authority)
+	ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+	if (GS)
 	{
-		ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 		TeamNumber = GS->GetNextPlayerTeamNumber();
 		
 		UpdatePlayerPawnColor();
@@ -145,7 +148,7 @@ void ADIMPlayerState::UpdatePlayerPawnColor()
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
 		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
-		if (Controller /*&& Controller->PlayerState == this*/)
+		if (Controller && Controller->PlayerState == this)
 		{
 			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
 			if (PlayerPawn)
@@ -154,16 +157,6 @@ void ADIMPlayerState::UpdatePlayerPawnColor()
 			}
 		}
 	}
-
-	/*ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(GetWorld()->GetFirstPlayerController());
-	if (Controller)
-	{
-		AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
-		if (PlayerPawn)
-		{
-			PlayerPawn->ServerInvokeColorChange();
-		}
-	}*/
 }
 
 // Called, when team number update received from server

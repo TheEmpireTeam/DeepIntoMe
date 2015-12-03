@@ -48,5 +48,6 @@ public:
 	void ChangeNameCommand(TArray<FString>& CommandParams);
 	void StatsCommand(TArray<FString>& CommandParams);
 	void RespawnCommand(TArray<FString>& CommandParams);
+	void SetGameModeCommand(TArray<FString>& CommandParams);
 	
 };

@@ -45,7 +45,7 @@ public:
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
-	void Explode();
+	void Explode(class AController* EventInstigator);
 
 	UFUNCTION(Reliable, NetMulticast)
 	void SimulateExplosion();
