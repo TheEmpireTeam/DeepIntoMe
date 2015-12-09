@@ -7,9 +7,18 @@
 
 UENUM(BlueprintType)
 enum class EMultiplayerTeam : uint8 {
+	Spectator,
 	Earth,
 	Bailosh,
 	Aliens
+};
+
+UENUM(BlueprintType)
+enum class EGamePlayMode : uint8 {
+	Deathmatch,
+	TeamDeathmatch,
+	Dominate,
+	CaptureTheFlag
 };
 
 UCLASS()
@@ -17,10 +26,13 @@ class DEEPINTOME_API ADIMGameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
-public:
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+private:
+	EGamePlayMode DefaultPlayMode;
 	
-	//virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
+public:
+	ADIMGameMode();
+
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	
 	virtual void RestartPlayer(class AController* NewPlayer) override;
 	
@@ -29,4 +41,9 @@ public:
 	virtual void StartNewPlayer(APlayerController* NewPlayer) override;
 	
 	virtual void StartMatch();
+	
+	EGamePlayMode GetDefaultPlayMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	static FString GamePlayModeToString(EGamePlayMode Mode);
 };

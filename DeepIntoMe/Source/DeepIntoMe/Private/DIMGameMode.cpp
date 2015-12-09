@@ -6,7 +6,13 @@
 #include "DIMPlayerState.h"
 #include "DeepIntoMePlayerController.h"
 #include "MainCharacter.h"
-
+#include "DeepIntoMeGameState.h"
+	
+ADIMGameMode::ADIMGameMode()
+: Super()
+{
+	DefaultPlayMode = EGamePlayMode::Deathmatch;
+}
 	
 AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
@@ -50,11 +56,15 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 		AActor* SpawnPoint = ChoosePlayerStart(NewPlayer);
 		if (SpawnPoint)
 		{
-			Pawn->SetActorLocation(SpawnPoint->GetActorLocation());
-			Pawn->SetActorRotation(SpawnPoint->GetActorRotation());
+			FHitResult HitResult;
+			Pawn->SetActorLocationAndRotation(SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation()/*, true, &HitResult, ETeleportType::TeleportPhysics*/);
 		}
 		
-		Pawn->ServerInvokeColorChange();
+		ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+		if (GameState->GetPlayMode() != EGamePlayMode::Deathmatch)
+		{
+			Pawn->ServerInvokeColorChange();
+		}
 	}
 }
 
@@ -71,4 +81,26 @@ void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 void ADIMGameMode::StartMatch()
 {
 	Super::StartMatch();
+}
+
+EGamePlayMode ADIMGameMode::GetDefaultPlayMode()
+{
+	return DefaultPlayMode;
+}
+
+FString ADIMGameMode::GamePlayModeToString(EGamePlayMode Mode)
+{
+	switch (Mode)
+	{
+		case EGamePlayMode::Deathmatch:
+			return TEXT("Deathmatch");
+		case EGamePlayMode::TeamDeathmatch:
+			return TEXT("Team Deathmatch");
+		case EGamePlayMode::Dominate:
+			return TEXT("Dominate");
+		case EGamePlayMode::CaptureTheFlag:
+			return TEXT("Capture The Flag");
+	}
+	
+	return TEXT("");
 }

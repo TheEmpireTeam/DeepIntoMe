@@ -408,6 +408,25 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 				}
 				
 				OnDying();
+				
+				USkeletalMeshComponent* Mesh3P = GetMesh();
+				if (Mesh3P)
+				{
+					if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+					{
+						FPointDamageEvent PointDmg = *((FPointDamageEvent*)(&DamageEvent));
+						{
+							Mesh3P->AddImpulseAtLocation(PointDmg.ShotDirection * 12000, PointDmg.HitInfo.ImpactPoint, PointDmg.HitInfo.BoneName);
+						}
+					}
+					if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+					{
+						FRadialDamageEvent RadialDmg = *((FRadialDamageEvent const*)(&DamageEvent));
+						{
+							Mesh3P->AddRadialImpulse(RadialDmg.Origin, RadialDmg.Params.GetMaxRadius(), 100000, ERadialImpulseFalloff::RIF_Linear);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -478,8 +497,6 @@ void AMainCharacter::OnDying()
 	
 	const float TimeToRemoveCorpse = 10.0f;
 	SetLifeSpan(TimeToRemoveCorpse);
-	
-	
 	
 	SetSpectatorMode();
 }
@@ -590,7 +607,27 @@ void AMainCharacter::OnRep_bTestIsDead()
 		
 		const float TimeToRemoveCorpse = 30.0f;
 		SetLifeSpan(TimeToRemoveCorpse);
+		
+		/*if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+		{
+			FPointDamageEvent PointDmg = *((FPointDamageEvent*)(&DamageEvent));
+			{
+				Mesh3P->AddImpulseAtLocation(PointDmg.ShotDirection * 12000, PointDmg.HitInfo.ImpactPoint, PointDmg.HitInfo.BoneName);
+			}
+		}
+		if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+		{
+			FRadialDamageEvent RadialDmg = *((FRadialDamageEvent const*)(&DamageEvent));
+			{
+				Mesh3P->AddRadialImpulse(RadialDmg.Origin, RadialDmg.Params.GetMaxRadius(), 100000, ERadialImpulseFalloff::RIF_Linear);
+			}
+		}*/
 	}
+}
+
+bool AMainCharacter::IsAlive()
+{
+	return (Health > 0.0f);
 }
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

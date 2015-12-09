@@ -7,6 +7,33 @@
 #include "MainCharacter.h"
 
 
+ADeepIntoMeGameState::ADeepIntoMeGameState()
+: Super()
+{
+
+}
+
+void ADeepIntoMeGameState::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	ADIMGameMode* GameMode = Cast<ADIMGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		CurrentPlayMode = GameMode->GetDefaultPlayMode();
+	}
+	else
+	{
+		CurrentPlayMode = EGamePlayMode::Deathmatch;
+	}
+	
+	ADeepIntoMeHUD* HUD = Cast<ADeepIntoMeHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (HUD)
+	{
+		HUD->SetGamePlayMode(CurrentPlayMode);
+	}
+}
+
 int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()
 {
 	int32 MankindPlayers = 0, BarnyForcesPlayers = 0;
@@ -121,4 +148,39 @@ void ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Implementation()
 bool ADeepIntoMeGameState::ServerRepaintOtherPlayerPawns_Validate()
 {
 	return true;
+}
+
+FString ADeepIntoMeGameState::GetPlayModeName()
+{
+	return ADIMGameMode::GamePlayModeToString(CurrentPlayMode);
+}
+
+EGamePlayMode ADeepIntoMeGameState::GetPlayMode()
+{
+	return CurrentPlayMode;
+}
+
+void ADeepIntoMeGameState::SetPlayMode(EGamePlayMode NewPlayMode)
+{
+	CurrentPlayMode = NewPlayMode;
+	
+	NetMulticastRefreshGamePlayMode(CurrentPlayMode);
+	
+	// Handle changes
+}
+
+void ADeepIntoMeGameState::NetMulticastRefreshGamePlayMode_Implementation(const EGamePlayMode NewPlayMode)
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller)
+		{
+			ADeepIntoMeHUD* HUD = Cast<ADeepIntoMeHUD>(Controller->GetHUD());
+			if (HUD)
+			{
+				HUD->SetGamePlayMode(NewPlayMode);
+			}
+		}
+	}
 }

@@ -4,6 +4,7 @@
 #include "DIMConsoleManager.h"
 #include "DIMPlayerState.h"
 #include "MainCharacter.h"
+#include "DeepIntoMeGameState.h"
 
 
 UDIMConsoleManager::UDIMConsoleManager()
@@ -118,15 +119,35 @@ void UDIMConsoleManager::RespawnCommand(TArray<FString>& CommandParams)
 
 void UDIMConsoleManager::SetGameModeCommand(TArray<FString>& CommandParams)
 {
-	if (CommandParams.Num() > 1)
+	if (OwningController->Role == ROLE_Authority)
 	{
-		if (CommandParams[1] == TEXT("deathmatch"))
+		if (CommandParams.Num() > 1)
 		{
-			// Enable deathmatch rules
+			if (CommandParams[1] == TEXT("deathmatch"))
+			{
+				// Enable deathmatch rules
+				ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(OwningController->GetWorld()->GetGameState());
+				if (GameState)
+				{
+					GameState->SetPlayMode(EGamePlayMode::Deathmatch);
+				}
+			}
+			else if (CommandParams[1] == TEXT("team_deathmatch"))
+			{
+				// Enable team deathmatch rules
+				ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(OwningController->GetWorld()->GetGameState());
+				if (GameState)
+				{
+					GameState->SetPlayMode(EGamePlayMode::TeamDeathmatch);
+				}
+			}
 		}
-		else if (CommandParams[1] == TEXT("team_deathmatch"))
+	}
+	else
+	{
+		if (OwningController)
 		{
-			// Enable team deathmatch rules
+			OwningController->ClientAddConsoleMessage(TEXT("You have no rights to change gamemode!"));
 		}
 	}
 }

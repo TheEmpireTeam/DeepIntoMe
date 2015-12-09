@@ -4,15 +4,22 @@
 
 #include "GameFramework/GameState.h"
 #include "DIMPlayerState.h"
-#include "DIMNetworkManager.h"
+#include "DIMGameMode.h"
 #include "DeepIntoMeGameState.generated.h"
 
 UCLASS()
 class ADeepIntoMeGameState : public AGameState
 {
 	GENERATED_BODY()
+	
+private:
+	EGamePlayMode CurrentPlayMode;
 
 public:
+	ADeepIntoMeGameState();
+	
+	virtual void BeginPlay() override;
+
 	// Get team by automatic team filling mechanism
 	int32 GetNextPlayerTeamNumber();
 	
@@ -36,4 +43,15 @@ public:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRepaintOtherPlayerPawns();
+	
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	FString GetPlayModeName();
+	
+	void SetPlayMode(EGamePlayMode NewPlayMode);
+	
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	EGamePlayMode GetPlayMode();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRefreshGamePlayMode(const EGamePlayMode NewPlayMode);
 };

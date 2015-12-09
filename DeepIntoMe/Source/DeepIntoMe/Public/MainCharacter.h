@@ -215,4 +215,6 @@ public:
 	UFUNCTION()
 	void OnRep_bTestIsDead();
 	
+	bool IsAlive();
+	
 };

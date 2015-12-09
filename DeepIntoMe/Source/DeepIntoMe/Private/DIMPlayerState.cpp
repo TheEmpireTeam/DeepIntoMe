@@ -186,6 +186,24 @@ bool ADIMPlayerState::ServerSetTeamNumber_Validate(int32 NewTeamNumber)
 	return true;
 }
 
+bool ADIMPlayerState::IsDead()
+{
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller && Controller->PlayerState == this)
+		{
+			AMainCharacter* PlayerPawn = Cast<AMainCharacter>(Controller->GetPawn());
+			if (PlayerPawn)
+			{
+				return (!PlayerPawn->IsAlive());
+			}
+		}
+	}
+
+	return true;
+}
+
 void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

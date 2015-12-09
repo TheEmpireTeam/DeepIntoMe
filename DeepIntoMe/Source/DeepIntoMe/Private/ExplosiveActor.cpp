@@ -24,10 +24,6 @@ AExplosiveActor::AExplosiveActor(const FObjectInitializer& ObjectInitializer)
 	// Let the bomb be thrown and roll around
 	MeshComp->SetSimulatePhysics(true);
 
-	/*MaxFuzeTime = 3.0f;
-	ExplosionDamage = 200;
-	ExplosionRadius = 600;*/
-
 	SetReplicates(true);
 	bReplicateMovement = true;
 
@@ -53,8 +49,6 @@ void AExplosiveActor::Explode(class AController* EventInstigator)
 
 void AExplosiveActor::SimulateExplosion_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("SimulateExplosion"));
-
 	// First deactivate all running fuze effects
 	AudioComp->Stop();
 

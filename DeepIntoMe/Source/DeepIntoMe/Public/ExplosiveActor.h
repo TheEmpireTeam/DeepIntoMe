@@ -40,7 +40,7 @@ public:
 	
 	bool bExploded;
 	
-public:	
+public:
 	AExplosiveActor(const FObjectInitializer& ObjectInitializer);
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;

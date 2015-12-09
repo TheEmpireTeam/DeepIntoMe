@@ -18,6 +18,8 @@ class ADIMPlayerState : public APlayerState
 	
 	UPROPERTY(ReplicatedUsing = OnRep_TeamNumber)
 	int32 TeamNumber;
+	
+	bool bIsDead;
 
 public:
 	virtual void BeginPlay() override;
@@ -65,4 +67,7 @@ public:
 	
 	UFUNCTION()
 	void OnRep_TeamNumber();
+	
+	UFUNCTION(BlueprintCallable, Category = "Info")
+	bool IsDead();
 };

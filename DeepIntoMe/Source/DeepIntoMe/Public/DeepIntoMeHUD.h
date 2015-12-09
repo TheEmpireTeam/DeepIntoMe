@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
+#include "DIMGameMode.h"
 #include "DeepIntoMeHUD.generated.h"
 
 UENUM(BlueprintType)
@@ -25,15 +26,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	EHUDState GetCurrentState();
 
-	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")
 	void AddConsoleMessage(const FString& Message);
 	
-	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")
 	void ShowKillMessage(const FString& KillerName, const FString& VictimName);
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")
+	void SetGamePlayMode(const EGamePlayMode NewMode);
 
-	/* Event hook to update HUD state (eg. to determine visibility of widgets) */
+	// Event hook to update HUD state (eg. to determine visibility of widgets)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUDEvents")
 	void OnStateChanged(EHUDState NewState);
 };
