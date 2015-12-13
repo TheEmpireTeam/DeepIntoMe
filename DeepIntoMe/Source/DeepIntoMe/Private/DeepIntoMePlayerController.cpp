@@ -22,6 +22,12 @@ void ADeepIntoMePlayerController::BeginPlay()
 void ADeepIntoMePlayerController::Possess(APawn* InPawn)
 {
 	Super::Possess(InPawn);
+	
+	AMainCharacter* Character = Cast<AMainCharacter>(InPawn);
+	if (Character)
+	{
+		Character->RebindWeapon();
+	}
 }
 
 void ADeepIntoMePlayerController::SetSpectatorMode()

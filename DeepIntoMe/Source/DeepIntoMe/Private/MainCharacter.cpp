@@ -543,11 +543,7 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 	Weapon = NewWeapon;
 	Weapon->SetParentCharacter(this);
 	Weapon->SetSimulatePhysics(false);
-	
-	//Weapon->AttachRootComponentTo(Mesh, SocketName, EAttachLocation::SnapToTarget);
-	//GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Not IsLocallyControlled"));
 
-	//add branch for owner/replicated
 	if (IsLocallyControlled())
 	{
 		Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);

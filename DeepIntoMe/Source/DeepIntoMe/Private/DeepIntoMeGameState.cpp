@@ -27,7 +27,6 @@ void ADeepIntoMeGameState::BeginPlay()
 		HUD->SetGamePlayMode(CurrentPlayMode);
 	}
 	
-	//bGameStarted = false;
 	if (Role == ROLE_Authority)
 	{
 		FTimerHandle Handle;
@@ -37,8 +36,6 @@ void ADeepIntoMeGameState::BeginPlay()
 
 void ADeepIntoMeGameState::RebindPlayerWeapons()
 {
-	//bGameStarted = true;
-
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
 		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
