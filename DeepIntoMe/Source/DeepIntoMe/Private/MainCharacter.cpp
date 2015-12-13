@@ -579,7 +579,7 @@ void AMainCharacter::ServerInvokeColorChange_Implementation()
 	if (PS)
 	{
 		// Get authoritative team number on server side & send it to all clients
-		NetMulticastUpdateTeamColor(PS->GetTeamNumber());
+		NetMulticastUpdateTeamColor(PS->GetTeam());
 	}
 }
 
@@ -588,12 +588,12 @@ bool AMainCharacter::ServerInvokeColorChange_Validate()
 	return true;
 }
 
-void AMainCharacter::NetMulticastUpdateTeamColor_Implementation(const int32 TeamNumber)
+void AMainCharacter::NetMulticastUpdateTeamColor_Implementation(const EMultiplayerTeam Team)
 {
-	UpdateTeamColor(TeamNumber);
+	UpdateTeamColor(Team);
 }
 
-bool AMainCharacter::NetMulticastUpdateTeamColor_Validate(const int32 TeamNumber)
+bool AMainCharacter::NetMulticastUpdateTeamColor_Validate(const EMultiplayerTeam Team)
 {
 	return true;
 }

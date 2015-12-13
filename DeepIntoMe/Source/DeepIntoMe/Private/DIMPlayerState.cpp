@@ -112,7 +112,7 @@ void ADIMPlayerState::AskTeamNumber()
 	ADeepIntoMeGameState* GS = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 	if (GS)
 	{
-		TeamNumber = GS->GetNextPlayerTeamNumber();
+		Team = GS->GetNextPlayerTeam();
 		
 		UpdatePlayerPawnColor();
 	}
@@ -128,9 +128,9 @@ bool ADIMPlayerState::ServerAskTeamNumber_Validate()
 	return true;
 }
 
-int32 ADIMPlayerState::GetTeamNumber()
+EMultiplayerTeam ADIMPlayerState::GetTeam()
 {
-	return TeamNumber;
+	return Team;
 }
 
 int32 ADIMPlayerState::GetKills()
@@ -165,23 +165,23 @@ void ADIMPlayerState::OnRep_TeamNumber()
 	//UpdatePlayerPawnColor();
 }
 
-void ADIMPlayerState::SetTeamNumber(int32 NewTeamNumber)
+void ADIMPlayerState::SetTeam(const EMultiplayerTeam NewTeam)
 {
 	if (Role < ROLE_Authority)
 	{
-		ServerSetTeamNumber(NewTeamNumber);
+		ServerSetTeam(NewTeam);
 	}
 
-	TeamNumber = NewTeamNumber;
+	Team = NewTeam;
 	UpdatePlayerPawnColor();
 }
 
-void ADIMPlayerState::ServerSetTeamNumber_Implementation(int32 NewTeamNumber)
+void ADIMPlayerState::ServerSetTeam_Implementation(const EMultiplayerTeam NewTeam)
 {
-	SetTeamNumber(NewTeamNumber);
+	SetTeam(NewTeam);
 }
 
-bool ADIMPlayerState::ServerSetTeamNumber_Validate(int32 NewTeamNumber)
+bool ADIMPlayerState::ServerSetTeam_Validate(const EMultiplayerTeam NewTeam)
 {
 	return true;
 }
@@ -210,5 +210,5 @@ void ADIMPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>
 
 	DOREPLIFETIME(ADIMPlayerState, NumKills);
 	DOREPLIFETIME(ADIMPlayerState, NumDeaths);
-	DOREPLIFETIME(ADIMPlayerState, TeamNumber);
+	DOREPLIFETIME(ADIMPlayerState, Team);
 }

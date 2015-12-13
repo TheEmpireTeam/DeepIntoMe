@@ -22,7 +22,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// Get team by automatic team filling mechanism
-	int32 GetNextPlayerTeamNumber();
+	EMultiplayerTeam GetNextPlayerTeam();
 	
 	UFUNCTION(BlueprintCallable, Category = "Statistics")
 	TArray<APlayerState*> GetMankindPlayers();
@@ -30,10 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Statistics")
 	TArray<APlayerState*> GetBailoshPlayers();
 	
-	TArray<APlayerState*> GetPlayersOfTeam(int32 TeamNumber);
-	
-	UFUNCTION(BlueprintNativeEvent, Category = "Gameplay")
-	void StartNight();
+	TArray<APlayerState*> GetPlayersOfTeam(EMultiplayerTeam Team);
 	
 	void BroadcastKillMessage(const FString& KillerName, const FString& VictimName);
 	

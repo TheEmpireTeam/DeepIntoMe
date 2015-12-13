@@ -13,12 +13,6 @@ ADeepIntoMePlayerController::ADeepIntoMePlayerController()
 	SecondsToRespawn = 10.0f;
 }
 
-void ADeepIntoMePlayerController::BeginPlay()
-{
-	// Load player pawn colors on start
-	//ClientUpdatePlayersTeamColor();
-}
-
 void ADeepIntoMePlayerController::Possess(APawn* InPawn)
 {
 	Super::Possess(InPawn);
@@ -61,15 +55,6 @@ void ADeepIntoMePlayerController::ClientShowKillMessage_Implementation(const FSt
 	{
 		HUD->ShowKillMessage(KillerName, VictimName);
 	}
-}
-
-void ADeepIntoMePlayerController::ClientUpdatePawnColor_Implementation()
-{
-	/*AMainCharacter* PlayerPawn = Cast<AMainCharacter>(GetPawn());
-	if (PlayerPawn)
-	{
-		PlayerPawn->UpdateTeamColor();
-	}*/
 }
 
 void ADeepIntoMePlayerController::RespawnPlayer()

@@ -29,7 +29,7 @@ AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		if (TestStart)
 		{
 			ADIMPlayerState* PS = Cast<ADIMPlayerState>(Player->PlayerState);
-			if (PS && PS->GetTeamNumber() == TestStart->TeamNumber)
+			if (PS && PS->GetTeam() == TestStart->OwnerTeam)
 			{
 				PreferredSpawns.Add(TestStart);
 			}

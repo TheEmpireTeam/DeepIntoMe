@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/PlayerState.h"
+#include "DIMGameMode.h"
 #include "DIMPlayerState.generated.h"
 
 UCLASS()
@@ -17,7 +18,7 @@ class ADIMPlayerState : public APlayerState
 	int32 NumDeaths;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_TeamNumber)
-	int32 TeamNumber;
+	EMultiplayerTeam Team;
 	
 	bool bIsDead;
 
@@ -45,17 +46,17 @@ public:
 	
 	void AddDeath();
 	
-	void SetTeamNumber(int32 NewTeamNumber);
+	void SetTeam(const EMultiplayerTeam NewTeam);
 	
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerSetTeamNumber(int32 NewTeamNumber);
+	void ServerSetTeam(const EMultiplayerTeam NewTeam);
 	
 	// Request team number from server
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAskTeamNumber();
 	
 	UFUNCTION(BlueprintCallable, Category = "Info")
-	int32 GetTeamNumber();
+	EMultiplayerTeam GetTeam();
 	
 	UFUNCTION(BlueprintCallable, Category = "Info")
 	int32 GetKills();

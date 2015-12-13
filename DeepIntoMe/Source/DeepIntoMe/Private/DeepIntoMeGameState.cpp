@@ -45,6 +45,12 @@ void ADeepIntoMeGameState::RebindPlayerWeapons()
 			if (Character)
 			{
 				Character->RebindWeapon();
+				
+				ADIMPlayerState* PlayerState = Cast<ADIMPlayerState>(Character->PlayerState);
+				if (PlayerState)
+				{
+					Character->NetMulticastUpdateTeamColor(PlayerState->GetTeam());
+				}
 			}
 		}
 	}
@@ -68,59 +74,54 @@ void ADeepIntoMeGameState::SpawnPlayerInventory(AMainCharacter* PlayerPawn)
 	}*/
 }
 
-int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()
+EMultiplayerTeam ADeepIntoMeGameState::GetNextPlayerTeam()
 {
-	int32 MankindPlayers = 0, BarnyForcesPlayers = 0;
+	int32 EarthPlayers = 0, BailoshPlayers = 0;
 
 	for (int32 i = 0; i < PlayerArray.Num(); i++)
 	{
 		ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerArray[i]);
 		if (PS)
 		{
-			switch (PS->GetTeamNumber())
+			switch (PS->GetTeam())
 			{
-				case 0:
-					MankindPlayers++;
+				case EMultiplayerTeam::Earth:
+					EarthPlayers++;
 					break;
-				case 1:
-					BarnyForcesPlayers++;
+				case EMultiplayerTeam::Bailosh:
+					BailoshPlayers++;
 					break;
 			}
 		}
 	}
 	
-	return (BarnyForcesPlayers < MankindPlayers) ? 1 : 0;
+	return (BailoshPlayers < EarthPlayers) ? EMultiplayerTeam::Bailosh : EMultiplayerTeam::Earth;
 }
 
 TArray<APlayerState*> ADeepIntoMeGameState::GetMankindPlayers()
 {
-	return GetPlayersOfTeam(0);
+	return GetPlayersOfTeam(EMultiplayerTeam::Earth);
 }
 	
 TArray<APlayerState*> ADeepIntoMeGameState::GetBailoshPlayers()
 {
-	return GetPlayersOfTeam(1);
+	return GetPlayersOfTeam(EMultiplayerTeam::Bailosh);
 }
 
-TArray<APlayerState*> ADeepIntoMeGameState::GetPlayersOfTeam(int32 TeamNumber)
+TArray<APlayerState*> ADeepIntoMeGameState::GetPlayersOfTeam(EMultiplayerTeam Team)
 {
 	TArray<APlayerState*> Players;
 	
 	for (int32 i = 0; i < PlayerArray.Num(); i++)
 	{
 		ADIMPlayerState* PS = Cast<ADIMPlayerState>(PlayerArray[i]);
-		if (PS && PS->GetTeamNumber() == TeamNumber)
+		if (PS && PS->GetTeam() == Team)
 		{
 			Players.Add(PS);
 		}
 	}
 	
 	return Players;
-}
-
-void ADeepIntoMeGameState::StartNight_Implementation()
-{
-
 }
 
 // Function must be called on server in order to work correctly

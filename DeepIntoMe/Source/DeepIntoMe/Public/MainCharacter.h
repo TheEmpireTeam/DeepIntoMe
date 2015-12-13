@@ -4,6 +4,7 @@
 
 #include "GameFramework/Character.h"
 #include "Weapon.h"
+#include "DIMGameMode.h"
 #include "MainCharacter.generated.h"
 
 UCLASS()
@@ -207,13 +208,13 @@ public:
 	
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Gameplay")
-	void UpdateTeamColor(const int32 TeamNumber);
+	void UpdateTeamColor(const EMultiplayerTeam Team);
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerInvokeColorChange();
 	
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void NetMulticastUpdateTeamColor(const int32 TeamNumber);
+	void NetMulticastUpdateTeamColor(const EMultiplayerTeam Team);
 	
 	
 	void SetSpectatorMode();
