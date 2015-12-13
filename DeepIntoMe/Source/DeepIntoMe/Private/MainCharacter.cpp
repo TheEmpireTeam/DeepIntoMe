@@ -49,6 +49,18 @@ void AMainCharacter::BeginPlay()
 	StopRunning();
 }
 
+void AMainCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (Weapon)
+	{
+		Weapon->StopFire();
+		Weapon->DetachRootComponentFromParent(true);
+		Weapon->SetParentCharacter(NULL);	
+	
+		Weapon->Destroy();
+	}
+}
+
 void AMainCharacter::RebindWeapon_Implementation()
 {
 	if (Weapon)
