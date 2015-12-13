@@ -5,6 +5,7 @@
 #include "GameFramework/GameState.h"
 #include "DIMPlayerState.h"
 #include "DIMGameMode.h"
+#include "MainCharacter.h"
 #include "DeepIntoMeGameState.generated.h"
 
 UCLASS()
@@ -14,10 +15,10 @@ class ADeepIntoMeGameState : public AGameState
 	
 private:
 	EGamePlayMode CurrentPlayMode;
+	
+	bool bGameStarted;
 
 public:
-	ADeepIntoMeGameState();
-	
 	virtual void BeginPlay() override;
 
 	// Get team by automatic team filling mechanism
@@ -54,4 +55,10 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastRefreshGamePlayMode(const EGamePlayMode NewPlayMode);
+	
+	void SpawnPlayerInventory(AMainCharacter* PlayerPawn);
+	
+	void RebindPlayerWeapons();
+	
+	bool GameStarted();
 };

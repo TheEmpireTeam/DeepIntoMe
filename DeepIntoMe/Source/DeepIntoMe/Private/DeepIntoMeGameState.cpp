@@ -4,14 +4,8 @@
 #include "DeepIntoMeGameState.h"
 #include "DIMPlayerState.h"
 #include "DeepIntoMePlayerController.h"
-#include "MainCharacter.h"
+#include "Weapon.h"
 
-
-ADeepIntoMeGameState::ADeepIntoMeGameState()
-: Super()
-{
-
-}
 
 void ADeepIntoMeGameState::BeginPlay()
 {
@@ -32,6 +26,49 @@ void ADeepIntoMeGameState::BeginPlay()
 	{
 		HUD->SetGamePlayMode(CurrentPlayMode);
 	}
+	
+	//bGameStarted = false;
+	if (Role == ROLE_Authority)
+	{
+		FTimerHandle Handle;
+		GetWorldTimerManager().SetTimer(Handle, this, &ADeepIntoMeGameState::RebindPlayerWeapons, 2.0f, false);
+	}
+}
+
+void ADeepIntoMeGameState::RebindPlayerWeapons()
+{
+	//bGameStarted = true;
+
+	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+	{
+		ADeepIntoMePlayerController* Controller = Cast<ADeepIntoMePlayerController>(*Iterator);
+		if (Controller)
+		{
+			AMainCharacter* Character = Cast<AMainCharacter>(Controller->GetPawn());
+			if (Character)
+			{
+				Character->RebindWeapon();
+			}
+		}
+	}
+}
+
+bool ADeepIntoMeGameState::GameStarted()
+{
+	return bGameStarted;
+}
+
+void ADeepIntoMeGameState::SpawnPlayerInventory(AMainCharacter* PlayerPawn)
+{
+	/*FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	TSubclassOf<AWeapon> WeaponType = PlayerPawn->GetWeaponType();
+	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
+	
+	if (NewWeapon)
+	{
+		PlayerPawn->AddWeapon(NewWeapon);
+	}*/
 }
 
 int32 ADeepIntoMeGameState::GetNextPlayerTeamNumber()

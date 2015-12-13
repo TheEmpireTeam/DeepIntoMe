@@ -32,6 +32,8 @@ private:
 	//Actual pointer to a weapon
 	UPROPERTY()
 	AWeapon* Weapon;
+	
+	AWeapon* WeaponCopy;
 
 	UPROPERTY(Replicated, EditAnywhere, Category = Health)
 	float Health;
@@ -83,7 +85,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-
+	
 	//Move Camera in Y-axis
 	void LookUp(float Value);
 
@@ -110,6 +112,8 @@ public:
 
 	//Start reloading
 	void Reload();
+	
+	TSubclassOf<AWeapon> GetWeaponType();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerReload();
@@ -167,6 +171,8 @@ public:
 	// Add weapon to inventory
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void AddWeapon(AWeapon* NewWeapon);
+	
+	void AddWeaponFirst(AWeapon* NewWeapon);
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	USkeletalMeshComponent* GetWeaponMesh();
@@ -216,5 +222,8 @@ public:
 	void OnRep_bTestIsDead();
 	
 	bool IsAlive();
+	
+	UFUNCTION(NetMulticast, Reliable, Category = "Weapon")
+	void RebindWeapon();
 	
 };

@@ -58,4 +58,5 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerBroadcastConsoleMessage(const FString& Message);
 	
+	void Possess(APawn* InPawn) override;
 };

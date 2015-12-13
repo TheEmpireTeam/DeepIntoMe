@@ -49,6 +49,25 @@ void AMainCharacter::BeginPlay()
 	StopRunning();
 }
 
+void AMainCharacter::RebindWeapon_Implementation()
+{
+	if (Weapon)
+	{
+		if (IsLocallyControlled())
+		{
+			Weapon->StopFire();
+			Weapon->DetachRootComponentFromParent(true);
+			
+			Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
+		}
+	}
+}
+
+TSubclassOf<AWeapon> AMainCharacter::GetWeaponType()
+{
+	return WeaponType;
+}
+
 bool AMainCharacter::IsMagazineEmpty()
 {
 	return (Weapon) ? (Weapon->GetAmmoInClipCount() == 0) : true;
@@ -72,7 +91,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
-	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
+	//InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
 	//InputComponent->BindAction("Drop Item", IE_Pressed, this, &AMainCharacter::NetMulticastDropWeapon);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
@@ -303,6 +322,15 @@ void AMainCharacter::AddWeapon(AWeapon* NewWeapon)
 	}
 }
 
+void AMainCharacter::AddWeaponFirst(AWeapon* NewWeapon)
+{
+	/*if (NewWeapon)
+	{
+		AttachWeaponToCharacter(NewWeapon);
+		NewWeapon->StopDestroyTimer();
+	}*/
+}
+
 USkeletalMeshComponent* AMainCharacter::GetWeaponMesh()
 {
 	return (Weapon) ? Weapon->GetWeaponMesh() : NULL;
@@ -516,15 +544,18 @@ void AMainCharacter::AttachWeaponToCharacter(AWeapon* NewWeapon)
 	Weapon->SetParentCharacter(this);
 	Weapon->SetSimulatePhysics(false);
 	
+	//Weapon->AttachRootComponentTo(Mesh, SocketName, EAttachLocation::SnapToTarget);
+	//GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("Not IsLocallyControlled"));
+
 	//add branch for owner/replicated
-	//if (AMainCharacter::IsLocallyControlled())
-	//{
+	if (IsLocallyControlled())
+	{
 		Weapon->AttachRootComponentTo(FirstPersonMesh, SocketName, EAttachLocation::SnapToTarget);
-	//}
-	//else 
-	//{
-		//Weapon->AttachRootComponentTo(Mesh, SocketName, EAttachLocation::SnapToTarget);
-	//}
+	}
+	else 
+	{
+		Weapon->AttachRootComponentTo(Mesh, SocketName, EAttachLocation::SnapToTarget);
+	}
 }
 
 void AMainCharacter::DropWeapon()

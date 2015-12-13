@@ -5,6 +5,7 @@
 #include "DIMPlayerStart.h"
 #include "MainCharacter.h"
 #include "DIMGameMode.h"
+#include "DeepIntoMeGameState.h"
 
 
 ADeepIntoMePlayerController::ADeepIntoMePlayerController()
@@ -16,6 +17,11 @@ void ADeepIntoMePlayerController::BeginPlay()
 {
 	// Load player pawn colors on start
 	//ClientUpdatePlayersTeamColor();
+}
+
+void ADeepIntoMePlayerController::Possess(APawn* InPawn)
+{
+	Super::Possess(InPawn);
 }
 
 void ADeepIntoMePlayerController::SetSpectatorMode()

@@ -76,6 +76,8 @@ FString ADIMGameMode::InitNewPlayer(class APlayerController* NewPlayerController
 void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 {
 	Super::StartNewPlayer(NewPlayer);
+	
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("StartNewPlayer"));
 }
 
 void ADIMGameMode::StartMatch()
