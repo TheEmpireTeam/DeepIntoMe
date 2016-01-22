@@ -57,7 +57,7 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 		if (SpawnPoint)
 		{
 			FHitResult HitResult;
-			Pawn->SetActorLocationAndRotation(SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation()/*, true, &HitResult, ETeleportType::TeleportPhysics*/);
+			Pawn->SetActorLocationAndRotation(SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation());
 		}
 		
 		ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
@@ -76,13 +76,22 @@ FString ADIMGameMode::InitNewPlayer(class APlayerController* NewPlayerController
 void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 {
 	Super::StartNewPlayer(NewPlayer);
-	
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Yellow, TEXT("StartNewPlayer"));
 }
 
 void ADIMGameMode::StartMatch()
 {
 	Super::StartMatch();
+}
+
+void ADIMGameMode::PostLogin(APlayerController * NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	
+	ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
+	if (GameState)
+	{
+		GameState->InvokeWeaponRebindingDelay();
+	}
 }
 
 EGamePlayMode ADIMGameMode::GetDefaultPlayMode()

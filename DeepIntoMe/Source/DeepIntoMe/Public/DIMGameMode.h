@@ -42,6 +42,8 @@ public:
 	
 	virtual void StartMatch();
 	
+	virtual void PostLogin(APlayerController * NewPlayer) override;
+	
 	EGamePlayMode GetDefaultPlayMode();
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")

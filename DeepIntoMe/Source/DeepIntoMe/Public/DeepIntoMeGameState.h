@@ -58,4 +58,6 @@ public:
 	void RebindPlayerWeapons();
 	
 	bool GameStarted();
+	
+	void InvokeWeaponRebindingDelay();
 };
