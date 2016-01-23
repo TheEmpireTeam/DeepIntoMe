@@ -27,6 +27,11 @@ void ADeepIntoMeGameState::BeginPlay()
 		HUD->SetGamePlayMode(CurrentPlayMode);
 	}
 	
+	//InvokeWeaponRebindingDelay();
+}
+
+void ADeepIntoMeGameState::InvokeWeaponRebindingDelay()
+{
 	if (Role == ROLE_Authority)
 	{
 		FTimerHandle Handle;
@@ -63,15 +68,7 @@ bool ADeepIntoMeGameState::GameStarted()
 
 void ADeepIntoMeGameState::SpawnPlayerInventory(AMainCharacter* PlayerPawn)
 {
-	/*FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	TSubclassOf<AWeapon> WeaponType = PlayerPawn->GetWeaponType();
-	AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponType, FVector(0, 0, 1000), FRotator(0, 0, 0), SpawnParameters);
 	
-	if (NewWeapon)
-	{
-		PlayerPawn->AddWeapon(NewWeapon);
-	}*/
 }
 
 EMultiplayerTeam ADeepIntoMeGameState::GetNextPlayerTeam()
