@@ -27,6 +27,14 @@
 *.out
 *.app
 
+# Documentation
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.ppts
+*.rtf
+
 
 *.sln
 *.sdf
