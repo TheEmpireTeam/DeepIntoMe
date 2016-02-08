@@ -20,7 +20,7 @@ AProjectile::AProjectile()
 	ProjectileMovement->InitialSpeed = 10020.f;
 	ProjectileMovement->MaxSpeed = 10000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->bShouldBounce = false;
 
 	Damage = 0;
 }
@@ -35,7 +35,6 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 			PointDmg.ShotDirection = GetActorRotation().Vector();
 			PointDmg.Damage = Damage;
 
-			//if (Role == ROLE_Authority && Instigator)
 			OtherActor->TakeDamage(PointDmg.Damage, PointDmg, (Instigator) ? Instigator->Controller : NULL, this);
 		}
 

@@ -10,14 +10,14 @@
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
-	// Set this character to replicate
 	bReplicates = true;
 
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+
 	GetCharacterMovement()->StandingDownwardForceScale = 0.0f;
+	GetCharacterMovement()->bEnablePhysicsInteraction = false;
 
 	BaseRate = 45;
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Main Camera"));
@@ -36,7 +36,7 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	bTestIsDead = false;
+	bIsDead = false;
 	
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -408,7 +408,7 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 	}
 	else
 	{
-		if (!bTestIsDead)
+		if (!bIsDead)
 		{
 			DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 			Health -= DamageAmount;
@@ -503,7 +503,7 @@ bool AMainCharacter::ServerDeath_Validate()
 void AMainCharacter::OnDying()
 {
 	Health = 0;
-	bTestIsDead = true;
+	bIsDead = true;
 
 	NetMulticastDropWeapon();
 	
@@ -611,11 +611,10 @@ bool AMainCharacter::NetMulticastUpdateTeamColor_Validate(const EMultiplayerTeam
 	return true;
 }
 
-void AMainCharacter::OnRep_bTestIsDead()
+void AMainCharacter::OnRep_bIsDead()
 {
-	if (bTestIsDead)
+	if (bIsDead)
 	{
-		// RAGDOLL TEST
 		/* Disable all collision on capsule */
 		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -675,7 +674,7 @@ void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMainCharacter, Health);
-	DOREPLIFETIME(AMainCharacter, bTestIsDead);
+	DOREPLIFETIME(AMainCharacter, bIsDead);
 	
 	// Firing & movement properties
 	DOREPLIFETIME(AMainCharacter, bReloading);

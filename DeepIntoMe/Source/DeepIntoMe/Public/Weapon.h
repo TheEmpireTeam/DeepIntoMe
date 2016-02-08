@@ -67,7 +67,6 @@ private:
 	float OffsetRate;
 
 	// Does weapon simulate physics
-	UPROPERTY()
 	bool bSimulatePhysics;
 
 	// Is weapon firing right now
@@ -125,7 +124,7 @@ public:
 
 	void Reload();
 
-	void SetSimulatePhysics(bool SimulatePhyics);
+	void SetSimulatePhysics(bool bSimulatePhyics);
 
 	bool GetSimulatePhysics();
 

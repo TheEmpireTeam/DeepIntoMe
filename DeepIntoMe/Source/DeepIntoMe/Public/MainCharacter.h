@@ -14,27 +14,25 @@ class AMainCharacter : public ACharacter
 
 private:
 
-	//Main camera
+	// Main camera
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 
-	//Name of a socket for weapon
+	// Name of a socket for weapon
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	FName SocketName;
 
-	//Weapon type (!only for declearing type!)
+	// Weapon type (!only for declaring type!)
 	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 	TSubclassOf<AWeapon> WeaponType;
 
-	//First Person Mesh
+	// First Person Mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* FirstPersonMesh;
 
-	//Actual pointer to a weapon
+	// Actual pointer to a weapon
 	UPROPERTY()
 	AWeapon* Weapon;
-	
-	AWeapon* WeaponCopy;
 
 	UPROPERTY(Replicated, EditAnywhere, Category = Health)
 	float Health;
@@ -45,7 +43,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Walking)
 	float WalkingSpeed;
 
-	//Items i can use right now
+	// Items i can use right now
 	TMap<FString, IUsableInterface*> Items;
 
 	UPROPERTY(EditAnywhere)
@@ -74,8 +72,8 @@ public:
 	float YLookRate;
 	
 	// Test 'dead' flag
-	UPROPERTY(ReplicatedUsing = OnRep_bTestIsDead)
-	bool bTestIsDead;
+	UPROPERTY(ReplicatedUsing = OnRep_bIsDead)
+	bool bIsDead;
 
 public:
 	// Sets default values for this character's properties
@@ -223,7 +221,7 @@ public:
 	void SetSpectatorMode();
 	
 	UFUNCTION()
-	void OnRep_bTestIsDead();
+	void OnRep_bIsDead();
 	
 	bool IsAlive();
 	

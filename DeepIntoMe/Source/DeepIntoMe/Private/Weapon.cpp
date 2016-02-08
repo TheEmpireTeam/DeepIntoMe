@@ -7,15 +7,14 @@
 // Sets default values
 AWeapon::AWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
 	PickUpCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Pick Up Collision"));
 	PickUpCollision->AttachTo(Mesh);
-	PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
-	PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
+	//PickUpCollision->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnPickUpBeginOverlap);
+	//PickUpCollision->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnPickUpEndOverlap);
 	FireRate = 1;
 	bAutoDestroy = true;
 
@@ -24,6 +23,7 @@ AWeapon::AWeapon()
 	OffsetRate = 0.001;
 	//----------------------------------
 
+	bCanBeDamaged = false;
 	SetSimulatePhysics(true);
 }
 
@@ -53,7 +53,7 @@ void AWeapon::PlayShootSound()
 USoundBase * AWeapon::GetRandomShotSound()
 {
 	int32 count = ShotSounds.Num();
-	return (count == 0) ? NULL : ShotSounds[FMath::RandRange(0, count - 1)];
+	return (count == 0) ? NULL : ShotSounds[FMath::RandHelper(count)];
 }
 
 void AWeapon::OnUsed(ACharacter* User)
@@ -134,10 +134,11 @@ void AWeapon::HandleFiring()
 void AWeapon::SetSimulatePhysics(bool SimulatePhysics)
 {
 	bSimulatePhysics = SimulatePhysics;
+	
 	if (bSimulatePhysics)
 	{
 		Mesh->SetSimulatePhysics(true);
-		Mesh->SetCollisionProfileName(TEXT("PhysicsActor"));
+		Mesh->SetCollisionProfileName(TEXT("Weapon"));
 		PickUpCollision->bGenerateOverlapEvents = true;
 		PickUpCollision->SetCollisionProfileName(TEXT("Trigger"));
 	}
