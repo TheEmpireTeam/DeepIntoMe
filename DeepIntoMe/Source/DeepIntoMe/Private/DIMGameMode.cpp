@@ -16,11 +16,11 @@ ADIMGameMode::ADIMGameMode()
 	
 AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
-	TArray<ADIMPlayerStart*> PreferredSpawns;
+	TArray<APlayerStart*> PreferredSpawns;
 
 	// Get all playerstart objects in level
 	TArray<AActor*> PlayerStarts;
-	UGameplayStatics::GetAllActorsOfClass(this, ADIMPlayerStart::StaticClass(), PlayerStarts);
+	UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), PlayerStarts);
 
 	// Split the player starts into two arrays for preferred and fallback spawns
 	for (int32 i = 0; i < PlayerStarts.Num(); i++)
@@ -38,8 +38,7 @@ AActor* ADIMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	
 	if (PreferredSpawns.Num() > 0)
 	{
-		int32 RandomIndex = FMath::RandRange(0, PreferredSpawns.Num() - 1);
-		return PreferredSpawns[RandomIndex];
+		return PreferredSpawns[FMath::RandHelper(PreferredSpawns.Num())];
 	}
 	
 	return Super::ChoosePlayerStart_Implementation(Player);
@@ -50,7 +49,7 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 	Super::RestartPlayer(NewPlayer);
 	
 	// Repaint your respawned pawn on all clients
-	AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
+	/*AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
 	if (Pawn)
 	{
 		AActor* SpawnPoint = ChoosePlayerStart(NewPlayer);
@@ -65,7 +64,7 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 		{
 			Pawn->ServerInvokeColorChange();
 		}
-	}
+	}*/
 }
 
 FString ADIMGameMode::InitNewPlayer(class APlayerController* NewPlayerController, const TSharedPtr<const FUniqueNetId>& UniqueId, const FString& Options, const FString& Portal)
@@ -81,6 +80,12 @@ void ADIMGameMode::StartNewPlayer(APlayerController* NewPlayer)
 void ADIMGameMode::StartMatch()
 {
 	Super::StartMatch();
+}
+
+bool ADIMGameMode::ShouldSpawnAtStartSpot(AController* Player)
+{
+	/* Always pick a random location */
+	return false;
 }
 
 void ADIMGameMode::PostLogin(APlayerController * NewPlayer)

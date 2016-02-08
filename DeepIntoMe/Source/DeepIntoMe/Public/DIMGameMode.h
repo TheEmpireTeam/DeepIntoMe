@@ -44,6 +44,8 @@ public:
 	
 	virtual void PostLogin(APlayerController * NewPlayer) override;
 	
+	virtual bool ShouldSpawnAtStartSpot(AController* Player) override;
+	
 	EGamePlayMode GetDefaultPlayMode();
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")

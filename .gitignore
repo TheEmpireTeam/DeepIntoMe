@@ -27,6 +27,14 @@
 *.out
 *.app
 
+# Documentation
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.ppts
+*.rtf
+
 
 *.sln
 *.sdf
@@ -36,6 +44,8 @@
 /DeepIntoMe/DerivedDataCache
 /DeepIntoMe/Intermediate
 /DeepIntoMe/Saved
+/DeepIntoMe/Buglist
+/DeepIntoMe/Documentation
 
 /DeepIntoMe 4.9/Binaries
 /DeepIntoMe 4.9/DerivedDataCache

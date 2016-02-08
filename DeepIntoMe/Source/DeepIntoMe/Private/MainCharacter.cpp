@@ -17,6 +17,7 @@ AMainCharacter::AMainCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCharacterMovement()->StandingDownwardForceScale = 0.0f;
 
 	BaseRate = 45;
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Main Camera"));
@@ -420,9 +421,12 @@ void AMainCharacter::CheckDeath(float DamageAmount, struct FDamageEvent const& D
 				if (EventInstigator)
 				{
 					KillerPS = Cast<ADIMPlayerState>(EventInstigator->PlayerState);
-					if (KillerPS && KillerPS != PlayerState)
+					if (KillerPS)
 					{
-						KillerPS->AddKill();
+						if (KillerPS != PlayerState)
+						{
+							KillerPS->AddKill();
+						}
 					}
 				}
 				else
@@ -503,9 +507,6 @@ void AMainCharacter::OnDying()
 
 	NetMulticastDropWeapon();
 	
-	
-	
-	// RAGDOLL TEST
 	/* Disable all collision on capsule */
 	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
