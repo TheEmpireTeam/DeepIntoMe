@@ -6,6 +6,7 @@
 #include "DeepIntoMeHUD.h"
 #include "DeepIntoMePlayerController.h"
 #include "DeepIntoMeGameState.h"
+#include "Projectile.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -381,8 +382,7 @@ void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
 	// Disable damage to self
-	ACharacter* DamagedCharacter = Cast<ACharacter>(DamageCauser);
-	if (EventInstigator && DamagedCharacter && EventInstigator != DamagedCharacter->Controller)
+	if (Cast<AProjectile>(DamageCauser) && EventInstigator && EventInstigator == Controller)
 	{
 		DamageAmount = 0;
 	}
