@@ -35,7 +35,8 @@ void AProjectile::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 			PointDmg.ShotDirection = GetActorRotation().Vector();
 			PointDmg.Damage = Damage;
 
-			OtherActor->TakeDamage(PointDmg.Damage, PointDmg, (Instigator) ? Instigator->Controller : NULL, this);
+			// if (GetGameMode()->CanDealDamage(Instigator, OtherActor))
+				OtherActor->TakeDamage(PointDmg.Damage, PointDmg, (Instigator) ? Instigator->Controller : NULL, this);
 		}
 
 		Destroy();

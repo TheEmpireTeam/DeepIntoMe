@@ -49,23 +49,21 @@ void ADIMGameMode::RestartPlayer(class AController* NewPlayer)
 	Super::RestartPlayer(NewPlayer);
 	
 	// Repaint your respawned pawn on all clients
-	/*AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
+	AMainCharacter* Pawn = Cast<AMainCharacter>(NewPlayer->GetPawn());
 	if (Pawn)
 	{
-		AActor* SpawnPoint = ChoosePlayerStart(NewPlayer);
-		if (SpawnPoint)
-		{
-			FHitResult HitResult;
-			Pawn->SetActorLocationAndRotation(SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation());
-		}
-		
 		ADeepIntoMeGameState* GameState = Cast<ADeepIntoMeGameState>(GetWorld()->GetGameState());
 		if (GameState->GetPlayMode() != EGamePlayMode::Deathmatch)
 		{
 			Pawn->ServerInvokeColorChange();
 		}
-	}*/
+	}
 }
+
+/*bool ADIMGameMode::CanDealDamage(class ADIMPlayerState* DamageCauser, class ADIMPlayerState* DamagedPlayer) const
+{
+	return true;
+}*/
 
 FString ADIMGameMode::InitNewPlayer(class APlayerController* NewPlayerController, const TSharedPtr<const FUniqueNetId>& UniqueId, const FString& Options, const FString& Portal)
 {

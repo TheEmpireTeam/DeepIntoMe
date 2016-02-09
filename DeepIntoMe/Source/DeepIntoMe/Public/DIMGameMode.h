@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
+//#include "DIMPlayerState.h"
 #include "DIMGameMode.generated.h"
 
 UENUM(BlueprintType)
@@ -45,6 +46,8 @@ public:
 	virtual void PostLogin(APlayerController * NewPlayer) override;
 	
 	virtual bool ShouldSpawnAtStartSpot(AController* Player) override;
+	
+	//virtual bool CanDealDamage(class ADIMPlayerState* DamageCauser, class ADIMPlayerState* DamagedPlayer) const;
 	
 	EGamePlayMode GetDefaultPlayMode();
 	

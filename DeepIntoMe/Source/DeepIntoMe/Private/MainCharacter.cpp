@@ -370,32 +370,26 @@ void AMainCharacter::UseItem()
 
 void AMainCharacter::OnBeginOverlap(AActor* OtherActor)
 {
-	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
-
-	if (UsableItem)
-	{
-		if (GEngine)
-		{
-			FString Message = UsableItem->GetActionMessage();
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, Message);
-		}
-		Items.Add(OtherActor->GetHumanReadableName(), UsableItem);
-	}
+	
 }
 
 void AMainCharacter::OnEndOverlap(AActor* OtherActor)
 {
-	IUsableInterface* UsableItem = Cast<IUsableInterface>(OtherActor);
-
-	if (UsableItem)
-	{
-		Items.Remove(OtherActor->GetHumanReadableName());
-	}
+	
 }
 
 float AMainCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	CheckDeath(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	// Disable damage to self
+	ACharacter* DamagedCharacter = Cast<ACharacter>(DamageCauser);
+	if (EventInstigator && DamagedCharacter && EventInstigator != DamagedCharacter->Controller)
+	{
+		DamageAmount = 0;
+	}
+	else
+	{
+		CheckDeath(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	}
 	
 	return DamageAmount;
 }

@@ -102,6 +102,15 @@ void AWeapon::HandleFiring()
 		FVector FireLocation = Mesh->GetSocketLocation(FireSocketName);
 		FVector Direction = (HitLocation - FireLocation).GetClampedToMaxSize(1) + FMath::VRand() * Offset;
 
+		if (Role == ROLE_Authority)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Spawn projectile on server"));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Spawn projectile on client"));
+		}
+		
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType, FireLocation, Direction.Rotation(), SpawnParameters);
 		Projectile->SetInstigator(ParentCharacter);
 		

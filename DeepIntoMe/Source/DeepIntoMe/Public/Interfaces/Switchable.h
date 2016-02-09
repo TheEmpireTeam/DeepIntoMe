@@ -1,8 +1,9 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "Interface.h"
-#include "GameFramework/Character.h"
-#include "ISwitchable.generated.h"
+#include "Switchable.generated.h"
 
 UINTERFACE(MinimalAPI)
 class USwitchable : public UInterface
