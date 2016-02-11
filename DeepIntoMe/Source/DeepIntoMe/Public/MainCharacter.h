@@ -48,6 +48,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float BaseRate;
+	
+	UPROPERTY()
+	AActor* FocusedInteractableActor;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Firing")
@@ -188,7 +191,7 @@ public:
 	UFUNCTION()
 	void OnBeginOverlap(AActor* OtherActor);
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	bool IsMagazineEmpty();
 
 	UFUNCTION()
@@ -227,5 +230,11 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable, Category = "Weapon")
 	void RebindWeapon();
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void SetFocusedInteractableActor(AActor* FocusedActor);
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	AActor* GetFocusedInteractableActor();
 	
 };

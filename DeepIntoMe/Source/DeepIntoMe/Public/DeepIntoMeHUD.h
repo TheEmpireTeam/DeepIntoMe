@@ -21,7 +21,7 @@ class ADeepIntoMeHUD : public AHUD
 	ADeepIntoMeHUD(const FObjectInitializer& ObjectInitializer);
 
 	EHUDState CurrentState;
-
+	
 public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	EHUDState GetCurrentState();
@@ -38,4 +38,10 @@ public:
 	// Event hook to update HUD state (eg. to determine visibility of widgets)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUDEvents")
 	void OnStateChanged(EHUDState NewState);
+	
+	UFUNCTION(BlueprintCallable, Category = "HUDEvents")
+	void UpdateInteractionMessage(AActor* InteractiveActor);
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "HUDEvents")
+	void SetInteractionMessage(const FString& Message);
 };

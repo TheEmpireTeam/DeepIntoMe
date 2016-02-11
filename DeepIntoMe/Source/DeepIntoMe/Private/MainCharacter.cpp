@@ -7,6 +7,7 @@
 #include "DeepIntoMePlayerController.h"
 #include "DeepIntoMeGameState.h"
 #include "Projectile.h"
+#include "Interfaces/Switcher.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -27,6 +28,7 @@ AMainCharacter::AMainCharacter()
 	Camera->bUsePawnControlRotation = true;
 	FirstPersonMesh->AttachTo(Camera);
 	Health = 100.0f;
+	FocusedInteractableActor = NULL;
 	
 	OnActorBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -105,7 +107,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompo
 	InputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
 
-	//InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
+	InputComponent->BindAction("Use", IE_Pressed, this, &AMainCharacter::UseItem);
 	//InputComponent->BindAction("Drop Item", IE_Pressed, this, &AMainCharacter::NetMulticastDropWeapon);
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::StartFire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::StopFire);
@@ -362,10 +364,25 @@ float AMainCharacter::GetHealth()
 
 void AMainCharacter::UseItem()
 {
-	if (Items.Num())
+	/*if (Items.Num())
 	{
 		auto Iterator = Items.CreateIterator();
 		Iterator.Value()->OnUsed(this);
+	}*/
+	
+	if (FocusedInteractableActor)
+	{
+		// Check if it is switcher
+		ISwitcher* SwitcherActor = InterfaceCast<ISwitcher>(FocusedInteractableActor);
+		if (SwitcherActor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SwitcherActor cast success!"));
+			SwitcherActor->Switch();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("SwitcherActor cast failed!"));
+		}
 	}
 }
 
@@ -661,6 +678,27 @@ void AMainCharacter::OnRep_bIsDead()
 bool AMainCharacter::IsAlive()
 {
 	return (Health > 0.0f);
+}
+
+void AMainCharacter::SetFocusedInteractableActor(AActor* FocusedActor)
+{
+	FocusedInteractableActor = FocusedActor;
+	
+	// Update interaction message on HUD
+	ADeepIntoMePlayerController* PlayerController = Cast<ADeepIntoMePlayerController>(Controller);
+	if (PlayerController)
+	{
+		ADeepIntoMeHUD* HUD = Cast<ADeepIntoMeHUD>(PlayerController->GetHUD());
+		if (HUD)
+		{
+			HUD->UpdateInteractionMessage(FocusedInteractableActor);
+		}
+	}
+}
+	
+AActor* AMainCharacter::GetFocusedInteractableActor()
+{
+	return FocusedInteractableActor;
 }
 
 void AMainCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

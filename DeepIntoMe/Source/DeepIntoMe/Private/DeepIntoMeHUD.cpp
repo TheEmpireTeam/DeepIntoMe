@@ -18,3 +18,17 @@ EHUDState ADeepIntoMeHUD::GetCurrentState()
 {
 	return CurrentState;
 }
+
+void ADeepIntoMeHUD::UpdateInteractionMessage(AActor* InteractiveActor)
+{
+	// Pick an interaction message
+	if (InteractiveActor)
+	{
+		SetInteractionMessage(TEXT("Switch (E)"));
+	}
+	else
+	{
+		// Hide interaction message
+		SetInteractionMessage(TEXT(""));
+	}
+}
