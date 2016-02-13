@@ -16,6 +16,5 @@ class ISwitcher
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void Switch();
+	virtual void Switch() = 0;
 };

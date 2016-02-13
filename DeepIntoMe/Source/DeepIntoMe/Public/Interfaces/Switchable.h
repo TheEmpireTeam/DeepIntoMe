@@ -16,15 +16,11 @@ class ISwitchable
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void Switch();
+	virtual void Switch() = 0;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	bool CanSwitch();
+	virtual bool CanSwitch() = 0;
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnBeginOverlap();
+	//virtual void OnBeginOverlap() = 0;
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnEndOverlap();
+	//virtual void OnEndOverlap() = 0;
 };

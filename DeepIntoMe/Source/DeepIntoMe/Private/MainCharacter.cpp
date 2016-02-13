@@ -364,24 +364,13 @@ float AMainCharacter::GetHealth()
 
 void AMainCharacter::UseItem()
 {
-	/*if (Items.Num())
-	{
-		auto Iterator = Items.CreateIterator();
-		Iterator.Value()->OnUsed(this);
-	}*/
-	
 	if (FocusedInteractableActor)
 	{
 		// Check if it is switcher
-		ISwitcher* SwitcherActor = InterfaceCast<ISwitcher>(FocusedInteractableActor);
+		ISwitcher* SwitcherActor = Cast<ISwitcher>(FocusedInteractableActor);
 		if (SwitcherActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("SwitcherActor cast success!"));
 			SwitcherActor->Switch();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SwitcherActor cast failed!"));
 		}
 	}
 }
